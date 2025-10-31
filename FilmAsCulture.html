@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Film as Culture | Scrollytelling Prototype</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
+	<style>
+		:root {
+			color-scheme: light;
+			font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+			background: #0d0d0d;
+			color: #f5f5f5;
+		}
+		body {
+			margin: 0;
+			line-height: 1.6;
+		}
+		a {
+			color: #9ed0ff;
+		}
+		header {
+			position: relative;
+			padding: 5rem 5vw;
+			min-height: 80vh;
+			display: flex;
+			align-items: flex-end;
+			background: radial-gradient(circle at top, rgba(158, 208, 255, 0.25), transparent 55%), #08090c;
+		}
+		header h1 {
+			margin: 0;
+			font-size: clamp(2.5rem, 5vw, 4rem);
+			letter-spacing: 0.03em;
+		}
+		header p {
+			max-width: 40rem;
+			margin-top: 1.5rem;
+		}
+		main {
+			max-width: 1200px;
+			margin: 0 auto;
+			padding: 3rem 5vw 6rem;
+		}
+		section {
+			margin-bottom: 6rem;
+		}
+		.scrolly {
+			position: relative;
+		}
+		.scrolly__graphic {
+			position: sticky;
+			top: 10vh;
+			height: 80vh;
+			display: grid;
+			place-items: center;
+			background: rgba(15, 17, 26, 0.6);
+			border-radius: 18px;
+			border: 1px solid rgba(158, 208, 255, 0.2);
+			overflow: hidden;
+		}
+		.scrolly__graphic svg,
+		.scrolly__graphic canvas {
+			width: 100%;
+			height: 100%;
+		}
+		.scrolly__steps {
+			position: relative;
+			margin: 0;
+			padding: 0;
+			list-style: none;
+		}
+		.step {
+			margin: 0 auto 80vh;
+			max-width: 40rem;
+			padding: 2.5rem 2rem;
+			background: rgba(13, 13, 13, 0.75);
+			border-radius: 14px;
+			border: 1px solid rgba(158, 208, 255, 0.06);
+			box-shadow: 0 40px 60px rgba(2, 8, 20, 0.45);
+		}
+		.side-by-side {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+			gap: 2rem;
+		}
+		.side-by-side article {
+			background: rgba(13, 13, 13, 0.7);
+			border-radius: 14px;
+			padding: 1.75rem;
+			border: 1px solid rgba(158, 208, 255, 0.08);
+		}
+		.map-wrapper {
+			position: relative;
+			min-height: 75vh;
+			padding: 1.5rem;
+			background: rgba(8, 9, 12, 0.92);
+			border-radius: 15px;
+			border: 1px solid rgba(158, 208, 255, 0.12);
+		}
+		.map-legend {
+			position: absolute;
+			right: 1.5rem;
+			bottom: 1.5rem;
+			padding: 1rem 1.25rem;
+			background: rgba(5, 8, 15, 0.9);
+			border-radius: 12px;
+			border: 1px solid rgba(158, 208, 255, 0.18);
+		}
+		footer {
+			padding: 2rem 5vw 3rem;
+			text-align: center;
+			font-size: 0.875rem;
+			color: #9da9bc;
+		}
+		@media (max-width: 768px) {
+			header {
+				align-items: center;
+				padding-top: 4rem;
+			}
+			.step {
+				margin-bottom: 65vh;
+			}
+		}
+	</style>
+</head>
+<body>
+	<header>
+		<div>
+			<h1>Film as Culture</h1>
+			<p>
+				A scrollytelling journey through cinematic movements, cultural influence, and geographic reach. We begin with a guided narrative, comparing auteur voices and movements side by side, before inviting you to explore global film cultures through an interactive choropleth map.
+			</p>
+		</div>
+	</header>
+
+	<main>
+		<section class="scrolly" aria-labelledby="guided-story-heading">
+			<h2 id="guided-story-heading">Guided Narrative</h2>
+			<p>
+				As readers scroll, the narrative steps below will sync with a visual composition rendered inside the sticky panel. Populate the steps with data-driven insights and coordinate the visuals via D3 transitions.
+			</p>
+
+			<div class="scrolly__graphic" id="story-graphic">
+				<!-- D3-controlled visualization surface -->
+				<svg id="story-svg" viewBox="0 0 800 600"></svg>
+			</div>
+
+			<ol class="scrolly__steps" id="story-steps">
+				<li class="step" data-step="1">
+					<h3>Origins of New Wave Cinema</h3>
+					<p>Introduce context, highlight driving metrics, and describe the visual focus for this step.</p>
+				</li>
+				<li class="step" data-step="2">
+					<h3>Regional Cross-Pollination</h3>
+					<p>Reveal how influence spreads, referencing specific chart changes or annotations.</p>
+				</li>
+				<li class="step" data-step="3">
+					<h3>Global Resonance</h3>
+					<p>Conclude the guided portion, setting up the transition to user-led exploration.</p>
+				</li>
+			</ol>
+		</section>
+
+		<section aria-labelledby="side-by-side-heading">
+			<h2 id="side-by-side-heading">Comparative Spotlight</h2>
+			<p>
+				Use this dual column layout to stage directed comparisons. Each panel can load independent D3 charts or embed supporting media.
+			</p>
+			<div class="side-by-side">
+				<article>
+					<h3>Movement A</h3>
+					<p>Placeholder narrative describing defining traits, key directors, or signature aesthetics.</p>
+					<div id="chart-left" class="comparison-chart"></div>
+				</article>
+				<article>
+					<h3>Movement B</h3>
+					<p>Complementary narrative offering contrasts and inviting the reader to synthesize key points.</p>
+					<div id="chart-right" class="comparison-chart"></div>
+				</article>
+			</div>
+		</section>
+
+		<section aria-labelledby="choropleth-heading">
+			<h2 id="choropleth-heading">Explore the World of Film</h2>
+			<p>
+				The final section hands control over to the reader. Populate the map with country-level metrics (production counts, festival wins, or thematic classifications) and provide interactive affordances for deeper inquiry.
+			</p>
+
+			<div class="map-wrapper">
+				<svg id="choropleth-map" viewBox="0 0 960 600" role="img" aria-label="World map choropleth"></svg>
+				<aside class="map-legend" id="map-legend">
+					<h4>Legend</h4>
+					<ul>
+						<li>Insert scale or gradient details linked to your metric.</li>
+					</ul>
+				</aside>
+			</div>
+
+			<div id="map-controls">
+				<label>
+					Metric
+					<select id="metric-select">
+						<option value="productions">Productions</option>
+						<option value="festivalWins">Festival Wins</option>
+						<option value="audienceScore">Audience Score</option>
+					</select>
+				</label>
+				<label>
+					Year
+					<input type="range" id="year-range" min="1970" max="2025" step="1" value="2020" />
+				</label>
+			</div>
+		</section>
+	</main>
+
+	<footer>
+		Prototype template for Film as Culture. Replace placeholder content with data-driven storytelling and wire up D3 interactions.
+	</footer>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js" integrity="sha512-wddWbhGE8HNulBLV+Q4Mq3aUo5TEGjhAEn3X153yy+an+FmpiI8q6g7UmWux+dWiDZf9ac9QEPVvIVcq8Fd0rw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script>
+		// Basic scaffolding for scrollytelling activation.
+		const steps = document.querySelectorAll('.step');
+		const svg = d3.select('#story-svg');
+
+		function handleStep(stepIndex) {
+			// TODO: Bind this to narrative updates (annotations, transitions, etc.).
+			console.log('Active step', stepIndex);
+		}
+
+		const observer = new IntersectionObserver(
+			entries => {
+				entries.forEach(entry => {
+					if (entry.isIntersecting) {
+						handleStep(Number(entry.target.dataset.step));
+					}
+				});
+			},
+			{
+				threshold: 0.6,
+			}
+		);
+
+		steps.forEach(step => observer.observe(step));
+
+		// Stub for choropleth map build. Replace topojsonUrl with actual asset.
+		async function initChoropleth() {
+			const width = 960;
+			const height = 600;
+			const projection = d3.geoNaturalEarth1().fitSize([width, height], {type: 'Sphere'});
+			const path = d3.geoPath(projection);
+			const svgMap = d3.select('#choropleth-map');
+
+			svgMap.append('path')
+				.attr('d', path({type: 'Sphere'}))
+				.attr('fill', '#05070b');
+
+			try {
+				// const topojsonUrl = 'datasets/world-topo.json';
+				// const raw = await d3.json(topojsonUrl);
+				// const countries = topojson.feature(raw, raw.objects.countries).features;
+				const countries = [];
+
+				svgMap.selectAll('path.country')
+					.data(countries)
+					.join('path')
+					.attr('class', 'country')
+					.attr('d', path)
+					.attr('fill', '#1f2a44')
+					.attr('stroke', '#0c1523')
+					.attr('stroke-width', 0.25)
+					.on('mouseenter', (event, d) => {
+						// TODO: show tooltip with metric details.
+					});
+			} catch (error) {
+				console.error('Failed to load map geometry', error);
+			}
+		}
+
+		initChoropleth();
+	</script>
+</body>
+</html>
