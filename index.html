@@ -1,0 +1,2303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Film as Culture | Scrollytelling Prototype</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
+	<link
+		rel="stylesheet"
+		integrity="sha256-o9N1j7kCF7bTig1J1dSgH6kGprS4ykN86R0iC2A/GrU="
+		crossorigin=""
+	/>
+	<style>
+		:root {
+			color-scheme: light;
+			font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+			background: #0d0d0d;
+			color: #f5f5f5;
+			--film-offset: 0px;
+		}
+		*,
+		*::before,
+		*::after {
+			box-sizing: border-box;
+		}
+		body {
+			margin: 0;
+			line-height: 1.6;
+			background: #0d0d0d;
+			color: #f5f5f5;
+			font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+			position: relative;
+		}
+		a {
+			color: #9ed0ff;
+		}
+		header {
+			position: relative;
+			padding: 5rem 50px;
+			min-height: 80vh;
+			display: flex;
+			align-items: flex-start;
+			justify-content: center;
+			text-align: center;
+			padding-top: 12rem;
+			background: 
+				url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2070&auto=format&fit=crop') center/cover;
+		}
+		header h1 {
+			text-align: center;
+			margin: 0;
+			font-size: clamp(2.5rem, 5vw, 4rem);
+			letter-spacing: 0.03em;
+		}
+		header p {
+			max-width: 80rem;
+			margin: 1.5rem auto 0;
+		}
+		main {
+			max-width: none;
+			margin: 0 auto;
+			padding: 3rem 50px 6rem;
+		}
+		section {
+			margin-bottom: 6rem;
+		}
+		.scrolly {
+			position: relative;
+		}
+		.scrolly__graphic {
+			position: sticky;
+			top: 10vh;
+			height: 80vh;
+			display: grid;
+			place-items: center;
+			background: rgba(15, 17, 26, 0.6);
+			border-radius: 18px;
+			border: 1px solid rgba(158, 208, 255, 0.2);
+			overflow: hidden;
+		}
+		.scrolly__graphic svg,
+		.scrolly__graphic canvas {
+			width: 100%;
+			height: 100%;
+		}
+		.scrolly__steps {
+			position: relative;
+			margin: 0;
+			padding: 0;
+			list-style: none;
+		}
+		.step {
+			margin: 0 auto 80vh;
+			max-width: 40rem;
+			padding: 2.5rem 2rem;
+			background: rgba(13, 13, 13, 0.75);
+			border-radius: 14px;
+			border: 1px solid rgba(158, 208, 255, 0.06);
+			box-shadow: 0 40px 60px rgba(2, 8, 20, 0.45);
+		}
+		.side-by-side {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+			gap: 2rem;
+		}
+		.side-by-side article {
+			background: rgba(13, 13, 13, 0.7);
+			border-radius: 14px;
+			padding: 1.75rem;
+			border: 1px solid rgba(158, 208, 255, 0.08);
+		}
+		.comparison-charts {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 1.5rem;
+			margin-top: 1rem;
+		}
+		.country {
+			transition: fill 160ms ease, stroke-width 160ms ease;
+		}
+		.country.has-data {
+			stroke: #d7e3ff;
+			stroke-width: 0.7px;
+		}
+		.country.selected {
+			stroke: #9ed0ff;
+			stroke-width: 2px;
+			filter: brightness(1.2);
+		}
+		.scrolly-map {
+			display: grid;
+			grid-template-columns: minmax(280px, 400px) 1fr;
+			gap: 2.5rem;
+			align-items: flex-start;
+		}
+		.scrolly-map__steps {
+			position: relative;
+		}
+		.map-step {
+			margin: 0 0 70vh;
+			background: rgba(8, 9, 12, 0.92);
+			border-radius: 16px;
+			border: 1px solid rgba(158, 208, 255, 0.16);
+			padding: 2rem;
+			box-shadow: 0 24px 48px rgba(4, 10, 24, 0.45);
+			max-width: 600px;
+		}
+		.map-step:last-of-type {
+			margin-bottom: 15vh;
+		}
+		.scrolly-map__graphic {
+			position: sticky;
+			top: 5vh;
+			min-height: 90vh;
+			max-height: 90vh;
+			overflow-y: auto;
+		}
+		.map-panel {
+			background: rgba(8, 9, 12, 0.92);
+			border-radius: 16px;
+			border: 1px solid rgba(158, 208, 255, 0.16);
+			padding: 1.75rem;
+			display: flex;
+			flex-direction: column;
+			gap: 1.5rem;
+			box-shadow: 0 40px 60px rgba(2, 8, 20, 0.45);
+			height: 100%;
+			overflow-y: auto;
+		}
+		.map-panel__meta {
+			display: flex;
+			align-items: baseline;
+			justify-content: space-between;
+			gap: 1rem;
+			color: #9eb8ff;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			font-size: 0.75rem;
+		}
+		.map-panel__year {
+			font-size: clamp(2.2rem, 5vw, 3.6rem);
+			font-weight: 600;
+			color: #f5f8ff;
+		}
+		#scrolly-map {
+			width: 100%;
+			height: auto;
+			max-height: 30vh;
+			display: block;
+			background: #0b0f18;
+			border-radius: 12px;
+			border: 1px solid rgba(158, 208, 255, 0.1);
+		}
+		.map-panel__map-container {
+			width: 100%;
+		}
+		.map-panel__charts {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 1.5rem;
+			min-height: 0;
+			flex-shrink: 0;
+		}
+		.chart-card {
+			background: rgba(13, 16, 24, 0.76);
+			border-radius: 12px;
+			border: 1px solid rgba(158, 208, 255, 0.12);
+			padding: 1.15rem 1.1rem 1.3rem;
+			display: grid;
+			gap: 0.85rem;
+			min-height: 0;
+			align-content: start;
+		}
+		.chart-card h4 {
+			margin: 0;
+			font-size: 0.82rem;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: #9eb8ff;
+		}
+		.chart-card svg {
+			width: 100%;
+			height: auto;
+			max-height: 50vh;
+			display: block;
+		}
+		.chart-empty {
+			font-size: 2rem;
+			fill: #9da9bc;
+			text-anchor: middle;
+		}
+		.bar-value,
+		.lollipop-value {
+			font-size: 2rem;
+			fill: #f5f8ff;
+		}
+		.bar-label,
+		.lollipop-label {
+			font-size: 2.2rem;
+			fill: #c7d3ea;
+		}
+		/* Comparative section - smaller labels */
+		#side-by-side-heading ~ * .bar-label,
+		#side-by-side-heading ~ * .lollipop-label {
+			font-size: 0.9rem;
+			fill: #cbd5e8;
+		}
+		#side-by-side-heading ~ * .bar-value,
+		#side-by-side-heading ~ * .lollipop-value {
+			font-size: 0.85rem;
+			fill: #f5f8ff;
+			font-weight: 400;
+		}
+		.interactive-explorer {
+			display: grid;
+			gap: 1.75rem;
+			margin-top: 6rem;
+		}
+		.interactive-explorer h2 {
+			margin-top: 0;
+		}
+		.interactive-controls {
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+			background: rgba(12, 16, 26, 0.7);
+			border: 1px solid rgba(158, 208, 255, 0.08);
+			border-radius: 14px;
+			padding: 1rem 1.4rem;
+			flex-wrap: wrap;
+		}
+		.interactive-controls label {
+			font-weight: 600;
+			letter-spacing: 0.05em;
+			text-transform: uppercase;
+			color: #9eb8ff;
+		}
+		.interactive-controls input[type="range"] {
+			flex: 1;
+			min-width: 200px;
+		}
+		.interactive-controls output {
+			min-width: 3.5ch;
+			text-align: right;
+			font-variant-numeric: tabular-nums;
+			color: #f5f8ff;
+			font-weight: 600;
+		}
+		.reset-zoom-btn {
+			padding: 0.5rem 1rem;
+			background: rgba(158, 208, 255, 0.15);
+			border: 1px solid rgba(158, 208, 255, 0.3);
+			border-radius: 8px;
+			color: #9ed0ff;
+			font-weight: 600;
+			font-size: 0.85rem;
+			cursor: pointer;
+			transition: all 200ms ease;
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+		}
+		.reset-zoom-btn:hover {
+			background: rgba(158, 208, 255, 0.25);
+			border-color: rgba(158, 208, 255, 0.5);
+		}
+		.interactive-visual {
+			position: relative;
+			display: grid;
+			gap: 1.5rem;
+			grid-template-columns: 1fr 1fr;
+			align-items: start;
+			background: rgba(10, 12, 20, 0.78);
+			border: 1px solid rgba(158, 208, 255, 0.1);
+			border-radius: 16px;
+			padding: 1.8rem;
+			box-shadow: 0 30px 50px rgba(5, 12, 26, 0.45);
+		}
+		.interactive-map-section {
+			position: relative;
+			display: flex;
+			align-items: stretch;
+			height: 100%;
+		}
+		.interactive-sidebar {
+			display: flex;
+			flex-direction: column;
+			gap: 1.5rem;
+			height: 100%;
+		}
+		#interactive-map {
+			width: 100%;
+			height: 100%;
+			display: block;
+			background: #0b0f18;
+			border-radius: 12px;
+			border: 1px solid rgba(158, 208, 255, 0.12);
+		}
+		.interactive-charts {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 1.5rem;
+			flex: 1;
+		}
+		.interactive-tooltip {
+			position: fixed;
+			pointer-events: none;
+			background: rgba(10, 12, 24, 0.92);
+			border: 1px solid rgba(124, 164, 255, 0.22);
+			border-radius: 10px;
+			padding: 0.65rem 0.75rem;
+			font-size: 0.9rem;
+			box-shadow: 0 18px 40px rgba(5, 12, 28, 0.55);
+			opacity: 0;
+			transition: opacity 140ms ease;
+			color: #f5f8ff;
+			z-index: 10;
+		}
+		#map-note {
+			margin: 0;
+			font-size: 0.9rem;
+			color: #c7d3ea;
+			line-height: 1.5;
+		}
+		footer {
+			padding: 2rem 50px 3rem;
+			text-align: center;
+			font-size: 0.875rem;
+			color: #9da9bc;
+		}
+		@media (min-width: 1024px) {
+			.interactive-visual {
+				grid-template-columns: 1fr 1fr;
+				align-items: start;
+			}
+		}
+		@media (max-width: 768px) {
+			header {
+				align-items: center;
+				padding-top: 4rem;
+			}
+			.step {
+				margin-bottom: 65vh;
+			}
+			.scrolly-map {
+				grid-template-columns: 1fr;
+			}
+			.scrolly-map__graphic {
+				position: relative;
+				top: auto;
+			}
+			.map-panel {
+				position: sticky;
+				top: 8vh;
+			}
+			.map-panel__charts {
+				grid-template-columns: 1fr;
+			}
+			.comparison-charts {
+				grid-template-columns: 1fr;
+			}
+			.interactive-controls {
+				flex-direction: column;
+				align-items: flex-start;
+			}
+			.interactive-visual {
+				grid-template-columns: 1fr;
+				padding: 1.3rem;
+			}
+			.interactive-legend {
+				max-width: none;
+			}
+		}
+	</style>
+</head>
+<body>
+	<header>
+		<div>
+			<h1>Film as a reflection of culture</h1>
+            <p> by Lance Salmingo</p>
+			<p>
+				Much of my knowledge about international cultures stem from watching films produced around the world.
+                Films such as "Die Tomorrow", "Uncle Boonmee Who Can Recall His Past Lives" and "How to Make Millions Before Grandma Dies", all of which are films produced in Thailand and has gained international attention, tend to be more slow paced, dramatic, and rooted towards the Buddhist and Hinduistic beliefs (Dissanayake, 1992).
+                However, this might not be true to popular films produced and released locally. Films can provide an insider lense into a specific culture (Murat, 2000). 
+                The themes and genres of films in a country often reflect that country's cultural values (Tognozzi, 2010).
+                This project aims to showcase the most important themes in each country based on the films they produce.
+			</p>
+		</div>
+	</header>
+
+	<main>
+		<section aria-labelledby="choropleth-heading">
+			<h2 id="choropleth-heading">Explore Regional Film Cultures</h2>
+			<p>
+				Scroll the narrative on the left to journey through different regions of the world. The map zooms into each region, revealing how film genres vary across continents and cultures.
+			</p>
+
+			<div class="scrolly-map">
+				<div class="scrolly-map__steps">
+					<article class="map-step" data-map-region="global" data-map-note="A global view of film genres across continents, showing diverse cultural preferences in cinema (cumulative data).">
+						<h3>Global Overview · All Years</h3>
+						<p>The world of cinema reflects cultural diversity, with each region developing distinct genre preferences shaped by local traditions, storytelling styles, and audience tastes. This view shows cumulative data across all recorded years.</p>
+					</article>
+					<article class="map-step" data-map-region="North America" data-map-note="North America is dominated by Hollywood's blockbuster action and drama, with diverse influences from Caribbean and Central American cinema.">
+						<h3>North America</h3>
+						<p>Home to Hollywood, the world's most influential film industry. North American cinema encompasses blockbuster entertainment, independent films, and diverse voices from the United States, Canada, Mexico, and the Caribbean.</p>
+					</article>
+					<article class="map-step" data-map-region="South America" data-map-note="South America showcases passionate dramatic storytelling with rich cultural traditions from Brazil, Argentina, and across the continent.">
+						<h3>South America</h3>
+						<p>South American cinema brings passionate storytelling and social commentary. From Brazilian cinema novo to Argentine dramas, the continent's films reflect diverse cultures, political histories, and vibrant artistic traditions.</p>
+					</article>
+					<article class="map-step" data-map-region="Europe" data-map-note="Europe maintains its heritage of drama and art cinema, with varied genre preferences across Eastern and Western regions.">
+						<h3>Europe</h3>
+						<p>European cinema balances artistic drama with commercial genres. From French auteur films to British comedies, the continent preserves its rich cinematic heritage while embracing modern trends.</p>
+					</article>
+					<article class="map-step" data-map-region="East Asia" data-map-note="East Asia features powerhouse film industries in China, Japan, and South Korea, from anime to K-dramas.">
+						<h3>East Asia</h3>
+						<p>Home to some of the world's most innovative cinema. Japan's anime tradition, South Korea's dramatic excellence, and China's growing film industry create a dynamic cultural landscape.</p>
+					</article>
+					<article class="map-step" data-map-region="South Asia" data-map-note="South Asia is dominated by Bollywood's colorful musicals and dramatic storytelling traditions.">
+						<h3>South Asia</h3>
+						<p>Bollywood in India produces more films than any other industry worldwide. The region's cinema is characterized by vibrant musicals, family dramas, and epic storytelling that reflects diverse cultural traditions.</p>
+					</article>
+					<article class="map-step" data-map-region="Southeast Asia" data-map-note="Southeast Asia blends traditional storytelling with modern action cinema and horror genres.">
+						<h3>Southeast Asia</h3>
+						<p>From Thailand's action films to Indonesian horror, the region's cinema showcases unique cultural perspectives. The Philippines, Malaysia, and Vietnam each contribute distinct voices to global cinema.</p>
+					</article>
+					<article class="map-step" data-map-region="Central Asia" data-map-note="Central Asian cinema explores historical themes and cultural identity in the post-Soviet era.">
+						<h3>Central Asia</h3>
+						<p>Kazakhstan, Uzbekistan, and neighboring countries develop cinema that bridges Eastern and Western influences, often exploring themes of identity and heritage in the modern world.</p>
+					</article>
+					<article class="map-step" data-map-region="Middle East" data-map-note="Middle Eastern cinema combines rich cultural narratives with contemporary social commentary.">
+						<h3>Middle East</h3>
+						<p>Iranian cinema has gained international acclaim for its poetic realism. Turkish films blend European and Asian influences, while Israeli and Arab cinema explore complex regional narratives.</p>
+					</article>
+					<article class="map-step" data-map-region="Africa" data-map-note="African cinema emphasizes documentary and drama, telling authentic stories of culture, history, and contemporary life.">
+						<h3>Africa</h3>
+						<p>Nollywood in Nigeria and emerging film industries across the continent focus on authentic storytelling, documenting social issues and celebrating African culture through cinema.</p>
+					</article>
+					<article class="map-step" data-map-region="Oceania" data-map-note="Australia and New Zealand contribute adventure and drama films, often showcasing stunning natural landscapes.">
+						<h3>Oceania</h3>
+						<p>Australian and New Zealand cinema combines adventure storytelling with dramatic narratives, often featuring the region's distinctive landscapes and indigenous cultures.</p>
+					</article>
+				</div>
+				<div class="scrolly-map__graphic">
+					<div class="map-panel" aria-live="polite">
+						<div class="map-panel__meta">
+							<span>Top genre by country</span>
+							<span class="map-panel__year" id="map-year-label">--</span>
+						</div>
+						<div class="map-panel__map-container">
+							<svg id="scrolly-map" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid meet" role="img" aria-label="World map showing dominant film genre per country"></svg>
+						</div>
+						<div class="map-panel__charts">
+							<figure class="chart-card" aria-labelledby="global-genres-heading">
+								<h4 id="global-genres-heading">Global genre leaders</h4>
+								<svg id="global-genre-bars" viewBox="0 0 1040 560" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Horizontal bar chart of top global genres"></svg>
+							</figure>
+							<figure class="chart-card" aria-labelledby="region-summary-heading">
+								<h4 id="region-summary-heading">Top keywords</h4>
+								<svg id="region-summary" viewBox="0 0 1040 560" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Lollipop chart of top keywords"></svg>
+							</figure>
+						</div>
+						<p id="map-note">Scroll the narrative to explore yearly changes.</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section aria-labelledby="side-by-side-heading">
+			<h2 id="side-by-side-heading">Comparative Spotlight: Cultural Contrasts</h2>
+			<p>
+				Explore how cinema reflects cultural identity through two cinematically rich but culturally distinct nations. The United States and India represent different approaches to storytelling, genre preferences, and film production values.
+			</p>
+			<div class="side-by-side">
+				<article>
+					<svg id="comparison-map-usa" viewBox="0 0 600 500" style="width: 100%; height: auto; max-height: 250px; margin-bottom: 1rem; display: block;"></svg>
+					<h3>United States</h3>
+					<p>
+						Hollywood's influence on global cinema is undeniable, characterized by high-budget blockbusters, advanced special effects, and genre diversity. 
+						American cinema emphasizes Action, Drama, and Comedy, often blending entertainment with cutting-edge technology and international appeal.
+					</p>
+					<div class="comparison-charts">
+						<svg id="comparison-bar-usa" viewBox="0 0 700 375" style="width: 100%; height: auto; min-height: 400px; display: block;"></svg>
+						<svg id="comparison-lollipop-usa" viewBox="0 0 700 375" style="width: 100%; height: auto; min-height: 400px; display: block;"></svg>
+					</div>
+				</article>
+				<article>
+					<svg id="comparison-map-india" viewBox="0 0 600 500" style="width: 100%; height: auto; max-height: 250px; margin-bottom: 1rem; display: block;"></svg>
+					<h3>India</h3>
+					<p>
+						Bollywood and regional Indian cinema create the world's largest film industry by output, known for vibrant musicals, emotional storytelling, and family-oriented narratives. 
+						Indian films emphasize Drama, Romance, and Action, often incorporating song-and-dance sequences that reflect rich cultural traditions and social values.
+					</p>
+					<div class="comparison-charts">
+						<svg id="comparison-bar-india" viewBox="0 0 700 375" style="width: 100%; height: auto; min-height: 400px; display: block;"></svg>
+						<svg id="comparison-lollipop-india" viewBox="0 0 700 375" style="width: 100%; height: auto; min-height: 400px; display: block;"></svg>
+					</div>
+				</article>
+			</div>
+		</section>
+
+		<section aria-labelledby="interactive-heading" class="interactive-explorer">
+			<div>
+				<h2 id="interactive-heading">Interactive explorer</h2>
+				<p>
+					Use the timeline below to explore any year in the dataset. The choropleth updates instantly while the legend and tooltip surface the top genre and its relative popularity for each country.
+				</p>
+			</div>
+			<div class="interactive-controls">
+				<label for="interactive-year">Year</label>
+				<input id="interactive-year" type="range" min="1900" max="2025" value="2000" step="1" disabled />
+				<output id="interactive-year-label">--</output>
+				<button id="reset-zoom-btn" class="reset-zoom-btn" style="display: none;">Reset Zoom</button>
+			</div>
+			<div class="interactive-visual">
+				<div class="interactive-map-section">
+					<svg id="interactive-map" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Interactive globe visualization"></svg>
+					<div id="interactive-tooltip" class="interactive-tooltip" role="status" aria-hidden="true"></div>
+			</div>
+			<div class="interactive-sidebar">
+				<div class="interactive-charts">
+					<figure class="chart-card" aria-labelledby="interactive-genres-heading">
+						<h4 id="interactive-genres-heading">Top genres · <span id="interactive-country-name">All countries</span></h4>
+						<svg id="interactive-genre-bars" viewBox="0 0 1400 550" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Horizontal bar chart of top genres for selected year"></svg>
+					</figure>
+					<figure class="chart-card" aria-labelledby="interactive-keywords-heading">
+						<h4 id="interactive-keywords-heading">Top keywords · <span id="interactive-keywords-country">All countries</span></h4>
+						<svg id="interactive-keywords" viewBox="0 0 1400 550" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Lollipop chart of top keywords for selected year"></svg>
+					</figure>
+				</div>
+			</div>
+		</div>
+	</section>
+</main>	<footer>
+        Copyright © 2024 Lance Salmingo. All rights reserved. <br>
+		Information courtesy of IMDb (https://www.imdb.com). Used with permission. <br>
+        Keywords, popularity, and votes from TheMovieDB (https://www.themoviedb.org).
+		<br>
+		Photo by <a href="https://unsplash.com/photos/red-cinema-chair-evlkOfkQ5rE" target="_blank" rel="noopener noreferrer">Felix Mooneeram</a> on <a href="https://unsplash.com" target="_blank" rel="noopener noreferrer">Unsplash</a>
+	</footer>
+
+	<script src="https://d3js.org/d3.v7.min.js"></script>
+	<script src="datasets/world_geojson.js"></script>
+	<script src="datasets/top_genres_by_year.js"></script>
+	<script src="datasets/cumulative_genres.js"></script>
+	<script src="datasets/regional_genres.js"></script>
+	<script src="datasets/genre_keywords.js"></script>
+	<script src="datasets/country_details.js"></script>
+    
+	<script>
+		(function () {
+			const REGION_GROUPS = new Map([
+				['Africa', new Set([
+					'DZA','AGO','BEN','BWA','BFA','BDI','CMR','CPV','CAF','TCD','COM','COD','COG','CIV','DJI','EGY','GNQ','ERI','ETH','GAB','GMB','GHA','GIN','GNB','KEN','LSO','LBR','LBY','MDG','MWI','MLI','MRT','MUS','MAR','MOZ','NAM','NER','NGA','RWA','STP','SEN','SYC','SLE','SOM','ZAF','SSD','SDN','SWZ','TZA','TGO','TUN','UGA','ZMB','ZWE','ESH'
+				])],
+				['North America', new Set([
+					'USA','CAN','MEX','BLZ','CRI','SLV','GTM','HND','NIC','PAN','ATG','AIA','BHS','BRB','CUB','DMA','DOM','GRD','HTI','JAM','KNA','LCA','VCT','TTO','ABW','BES','GLP','GUF','MTQ','CYM','SXM','CUW','MSR','SPM','VGB','VIR','BMU','GRL','PRI','TCA'
+				])],
+				['South America', new Set([
+					'ARG','BOL','BRA','CHL','COL','ECU','GUY','PRY','PER','SUR','URY','VEN','FLK','SGS'
+				])],
+				['East Asia', new Set([
+					'CHN','HKG','JPN','KOR','MAC','MNG','TWN','PRK'
+				])],
+				['South Asia', new Set([
+					'AFG','BGD','BTN','IND','MDV','NPL','PAK','LKA'
+				])],
+				['Southeast Asia', new Set([
+					'BRN','KHM','IDN','LAO','MYS','MMR','PHL','SGP','THA','TLS','VNM'
+				])],
+				['Central Asia', new Set([
+					'KAZ','KGZ','TJK','TKM','UZB'
+				])],
+				['Middle East', new Set([
+					'ARM','AZE','BHR','GEO','IRN','IRQ','ISR','JOR','KWT','LBN','OMN','QAT','SAU','SYR','TUR','ARE','YEM','PSE'
+				])],
+				['Europe', new Set([
+					'ALB','AND','AUT','BLR','BEL','BIH','BGR','HRV','CYP','CZE','DNK','EST','FIN','FRA','DEU','GRC','HUN','ISL','IRL','ITA','LVA','LIE','LTU','LUX','MLT','MDA','MCO','MNE','NLD','NOR','POL','PRT','ROU','RUS','SMR','SRB','SVK','SVN','ESP','SWE','CHE','UKR','GBR','VAT','MKD','XKX','KOS','ESB','IMN','GGY','JEY','FRO','ALA','GIB'
+				])],
+				['Oceania', new Set([
+					'AUS','FJI','KIR','MHL','FSM','NRU','NZL','PLW','PNG','WSM','SLB','TON','TUV','VUT','ASM','COK','GUM','MNP','NCL','PYF'
+				])]
+			]);
+			const REGION_FALLBACK = 'Other';
+			const REGION_LOOKUP = new Map();
+			for (const [region, codes] of REGION_GROUPS) {
+				codes.forEach(code => {
+					REGION_LOOKUP.set(code.toUpperCase(), region);
+				});
+			}
+			[
+				['SXM', 'North America'],
+				['USG', 'North America'],
+				['CUW', 'North America'],
+				['ESB', 'Europe'],
+				['XKX', 'Europe'],
+				['KOS', 'Europe'],
+				['ATA', REGION_FALLBACK],
+			].forEach(([code, region]) => REGION_LOOKUP.set(code.toUpperCase(), region));
+
+			const world = window.WORLD_GEOJSON;
+			const topGenres = window.TOP_GENRES_DATA;  // For interactive section
+			const cumulativeGenres = window.CUMULATIVE_GENRE_DATA;  // For scrollytelling
+			const regionalGenres = window.REGIONAL_GENRE_DATA;  // For regional charts
+			const genreKeywords = window.GENRE_KEYWORDS?.genre_keywords || {};  // Real keywords from TMDB
+			
+			console.log('Data loading check:', {
+				worldDefined: !!world,
+				worldHasFeatures: !!world?.features,
+				featureCount: world?.features?.length,
+				topGenresDefined: !!topGenres,
+				cumulativeDefined: !!cumulativeGenres,
+				regionalDefined: !!regionalGenres,
+				keywordsDefined: !!genreKeywords,
+				keywordGenreCount: Object.keys(genreKeywords).length,
+				d3Defined: typeof d3 !== 'undefined'
+			});
+			
+			const mapSteps = document.querySelectorAll('.map-step');
+			const mapYearLabel = document.getElementById('map-year-label');
+			const mapNote = document.getElementById('map-note');
+			const interactiveYearInput = document.getElementById('interactive-year');
+			const interactiveYearLabel = document.getElementById('interactive-year-label');
+			const interactiveTooltip = d3.select('#interactive-tooltip');
+			const svg = d3.select('#scrolly-map');
+			const interactiveSvg = d3.select('#interactive-map');
+			const mapWidth = 1200;
+			const mapHeight = 700;
+			const projection = d3.geoMercator().scale(180).center([10, 35]);
+			const path = d3.geoPath(projection);
+			const mapGroup = svg.append('g');
+			const BASE_GENRE_PALETTE = [
+				'#4895ef', // 0: Action - bright blue
+				'#fee440', // 1: Adventure - yellow
+				'#f72585', // 2: Animation - hot pink
+				'#4cc9f0', // 3: Biography - light cyan
+				'#ff9f1c', // 4: Comedy - orange
+				'#b5179e', // 5: Crime - purple
+				'#06d6a0', // 6: Documentary - teal (moved from position 15)
+				'#e63946', // 7: Drama - bright red (changed from #2ec4b6)
+				'#7f5af0', // 8: Family - violet (moved from position 14)
+				'#80ffdb', // 9: Fantasy - mint (moved from position 10)
+				'#ffd166', // 10: History - gold (moved from position 11)
+				'#7209b7', // 11: Horror - deep purple (moved from position 8)
+				'#ff6b6b', // 12: Music - coral (moved from position 9)
+				'#c77dff', // 13: Musical - lavender (moved from position 12)
+				'#2a9d8f', // 14: Mystery - dark teal (new color)
+				'#f15bb5', // 15: Romance - pink (moved from position 13)
+				'#56cfe1', // 16: Sci-Fi - sky blue (moved from position 6)
+				'#52b788', // 17: Sport - green (moved from position 20)
+				'#118ab2', // 18: Thriller - ocean blue (moved from position 17)
+				'#ef476f'  // 19: War - crimson (moved from position 18)
+			];
+			const colorScale = d3.scaleOrdinal();
+			const axisColor = 'rgba(158, 208, 255, 0.35)';
+
+			function buildPalette(genres) {
+				if (!Array.isArray(genres) || !genres.length) {
+					return BASE_GENRE_PALETTE.slice();
+				}
+				if (genres.length <= BASE_GENRE_PALETTE.length) {
+					return BASE_GENRE_PALETTE.slice(0, genres.length);
+				}
+				return genres.map((_, idx) =>
+					BASE_GENRE_PALETTE[idx % BASE_GENRE_PALETTE.length] || d3.interpolateRainbow(idx / genres.length)
+				);
+			}
+
+			if (!world || !Array.isArray(world.features) || !topGenres || !topGenres.records) {
+				console.error('Map data is unavailable. World:', !!world, 'Features:', world?.features?.length, 'TopGenres:', !!topGenres, 'Records:', !!topGenres?.records);
+				if (mapYearLabel) mapYearLabel.textContent = '--';
+				if (mapNote) mapNote.textContent = 'Map data is unavailable. Ensure the local dataset scripts are reachable.';
+			}
+
+			const recordsByYear = topGenres?.records || {};  // For interactive section
+			const cumulativeRecords = cumulativeGenres?.records?.cumulative || [];  // For scrollytelling
+			const allGenres = Array.isArray(cumulativeGenres?.genres) ? cumulativeGenres.genres.slice().sort() : [];
+			const palette = buildPalette(allGenres);
+			colorScale.domain(allGenres).range(palette);
+
+			let countries;
+			if (world && Array.isArray(world.features)) {
+				countries = mapGroup
+					.selectAll('path')
+					.data(world.features)
+					.join('path')
+					.attr('class', 'country')
+					.attr('d', path)
+					.attr('fill', '#182132')
+					.attr('stroke', '#1f2e4c')
+					.attr('stroke-width', 0.4);
+			} else {
+				console.warn('World geodata not available, skipping map rendering');
+				countries = mapGroup.selectAll('path'); // empty selection
+			}
+
+			const barConfig = { width: 1560, height: 840, margin: { top: 60, right: 66, bottom: 114, left: 480 } };
+			const barSvg = d3
+				.select('#global-genre-bars')
+				.attr('viewBox', `0 0 ${barConfig.width} ${barConfig.height}`)
+				.attr('preserveAspectRatio', 'xMidYMid meet');
+			const barPlot = barSvg
+				.append('g')
+				.attr('transform', `translate(${barConfig.margin.left}, ${barConfig.margin.top})`);
+			const barInnerWidth = barConfig.width - barConfig.margin.left - barConfig.margin.right;
+			const barInnerHeight = barConfig.height - barConfig.margin.top - barConfig.margin.bottom;
+			const barRowsGroup = barPlot.append('g').attr('class', 'bar-rows');
+			const barXAxisGroup = barSvg
+				.append('g')
+				.attr('class', 'bar-x-axis')
+				.attr('transform', `translate(${barConfig.margin.left}, ${barConfig.height - barConfig.margin.bottom})`);
+			const barX = d3.scaleLinear().range([0, barInnerWidth]);
+			const barY = d3.scaleBand().range([0, barInnerHeight]).padding(0.22);
+			const barEmptyLabel = barSvg
+				.append('text')
+				.attr('class', 'chart-empty')
+				.attr('x', barConfig.width / 2)
+				.attr('y', barConfig.height / 2)
+				.attr('display', 'none')
+				.text('No genre data');
+
+			const lollipopConfig = { width: 1560, height: 840, margin: { top: 60, right: 96, bottom: 114, left: 420 } };
+			const lollipopSvg = d3
+				.select('#region-summary')
+				.attr('viewBox', `0 0 ${lollipopConfig.width} ${lollipopConfig.height}`)
+				.attr('preserveAspectRatio', 'xMidYMid meet');
+			const lollipopPlot = lollipopSvg
+				.append('g')
+				.attr('transform', `translate(${lollipopConfig.margin.left}, ${lollipopConfig.margin.top})`);
+			const lollipopInnerWidth = lollipopConfig.width - lollipopConfig.margin.left - lollipopConfig.margin.right;
+			const lollipopInnerHeight = lollipopConfig.height - lollipopConfig.margin.top - lollipopConfig.margin.bottom;
+			const lollipopRowsGroup = lollipopPlot.append('g').attr('class', 'lollipop-rows');
+			const lollipopXAxisGroup = lollipopSvg
+				.append('g')
+				.attr('class', 'lollipop-x-axis')
+				.attr('transform', `translate(${lollipopConfig.margin.left}, ${lollipopConfig.height - lollipopConfig.margin.bottom})`);
+			const lollipopX = d3.scaleLinear().range([0, lollipopInnerWidth]);
+			const lollipopY = d3.scaleBand().range([0, lollipopInnerHeight]).padding(0.5);
+			const lollipopEmptyLabel = lollipopSvg
+				.append('text')
+				.attr('class', 'chart-empty')
+				.attr('x', lollipopConfig.width / 2)
+				.attr('y', lollipopConfig.height / 2)
+				.attr('display', 'none')
+				.text('No keyword data');
+
+			const interactiveConfig = { width: 1200, height: 700 };
+			const interactiveProjection = d3.geoOrthographic()
+				.scale(320)
+				.center([0, 0])
+				.rotate([-122, -12])
+				.translate([interactiveConfig.width / 2, interactiveConfig.height / 2])
+				.clipAngle(90);
+			
+			const interactivePath = d3.geoPath(interactiveProjection);
+			const interactiveGroup = interactiveSvg.append('g');
+			
+			// Add sphere background for the globe
+			interactiveGroup.append('path')
+				.datum({type: 'Sphere'})
+				.attr('class', 'globe-sphere')
+				.attr('d', interactivePath)
+				.attr('fill', '#0b0f18')
+				.attr('stroke', '#2a3a52')
+				.attr('stroke-width', 1.5);
+			
+			let interactiveCountries;
+			if (world && Array.isArray(world.features)) {
+				interactiveCountries = interactiveGroup
+					.selectAll('path.country')
+					.data(world.features)
+					.join('path')
+					.attr('class', 'country interactive-country')
+					.attr('d', interactivePath)
+					.attr('fill', '#182132')
+					.attr('stroke', '#1f2e4c')
+					.attr('stroke-width', 0.4);
+			} else {
+				console.warn('World geodata not available for interactive map');
+				interactiveCountries = interactiveGroup.selectAll('path.country'); // empty selection
+			}
+
+			// Globe rotation functionality
+			let rotationState = {
+				rotating: false,
+				rotation: [-122, -12, 0],
+				velocity: [0, 0],
+				isDragging: false,
+				dragStartX: 0,
+				dragStartY: 0
+			};
+
+			const drag = d3.drag()
+				.on('start', function(event) {
+					rotationState.rotating = true;
+					rotationState.velocity = [0, 0];
+					rotationState.isDragging = false;
+					rotationState.dragStartX = event.x;
+					rotationState.dragStartY = event.y;
+				})
+				.on('drag', function(event) {
+					const sensitivity = 0.25;
+					rotationState.rotation[0] += event.dx * sensitivity;
+					rotationState.rotation[1] -= event.dy * sensitivity;
+					rotationState.rotation[1] = Math.max(-90, Math.min(90, rotationState.rotation[1]));
+					
+					// Mark as dragging if moved more than 5 pixels
+					const distance = Math.sqrt(
+						Math.pow(event.x - rotationState.dragStartX, 2) + 
+						Math.pow(event.y - rotationState.dragStartY, 2)
+					);
+					if (distance > 5) {
+						rotationState.isDragging = true;
+					}
+					
+					interactiveProjection.rotate(rotationState.rotation);
+					interactiveCountries.attr('d', interactivePath);
+					interactiveGroup.select('.globe-sphere').attr('d', interactivePath);
+				})
+				.on('end', function(event) {
+					rotationState.rotating = false;
+				});
+
+			interactiveSvg.call(drag);
+
+			const interactiveZoom = d3
+				.zoom()
+				.scaleExtent([0.8, 3])
+				.on('zoom', event => {
+					interactiveGroup.attr('transform', event.transform);
+				});
+			interactiveSvg.call(interactiveZoom);
+
+			// Setup interactive bar chart
+			const interactiveBarConfig = { width: 1400, height: 550, margin: { top: 40, right: 60, bottom: 80, left: 420 } };
+			const interactiveBarSvg = d3
+				.select('#interactive-genre-bars')
+				.attr('viewBox', `0 0 ${interactiveBarConfig.width} ${interactiveBarConfig.height}`)
+				.attr('preserveAspectRatio', 'xMidYMid meet');
+			const interactiveBarPlot = interactiveBarSvg
+				.append('g')
+				.attr('transform', `translate(${interactiveBarConfig.margin.left}, ${interactiveBarConfig.margin.top})`);
+			const interactiveBarInnerWidth = interactiveBarConfig.width - interactiveBarConfig.margin.left - interactiveBarConfig.margin.right;
+			const interactiveBarInnerHeight = interactiveBarConfig.height - interactiveBarConfig.margin.top - interactiveBarConfig.margin.bottom;
+			const interactiveBarRowsGroup = interactiveBarPlot.append('g').attr('class', 'bar-rows');
+			const interactiveBarXAxisGroup = interactiveBarSvg
+				.append('g')
+				.attr('class', 'bar-x-axis')
+				.attr('transform', `translate(${interactiveBarConfig.margin.left}, ${interactiveBarConfig.height - interactiveBarConfig.margin.bottom})`);
+			const interactiveBarX = d3.scaleLinear().range([0, interactiveBarInnerWidth]);
+			const interactiveBarY = d3.scaleBand().range([0, interactiveBarInnerHeight]).padding(0.22);
+			const interactiveBarEmptyLabel = interactiveBarSvg
+				.append('text')
+				.attr('class', 'chart-empty')
+				.attr('x', interactiveBarConfig.width / 2)
+				.attr('y', interactiveBarConfig.height / 2)
+				.attr('display', 'none')
+				.text('No genre data');
+
+			// Setup interactive lollipop chart
+			const interactiveLollipopConfig = { width: 1400, height: 550, margin: { top: 40, right: 80, bottom: 80, left: 360 } };
+			const interactiveLollipopSvg = d3
+				.select('#interactive-keywords')
+				.attr('viewBox', `0 0 ${interactiveLollipopConfig.width} ${interactiveLollipopConfig.height}`)
+				.attr('preserveAspectRatio', 'xMidYMid meet');
+			const interactiveLollipopPlot = interactiveLollipopSvg
+				.append('g')
+				.attr('transform', `translate(${interactiveLollipopConfig.margin.left}, ${interactiveLollipopConfig.margin.top})`);
+			const interactiveLollipopInnerWidth = interactiveLollipopConfig.width - interactiveLollipopConfig.margin.left - interactiveLollipopConfig.margin.right;
+			const interactiveLollipopInnerHeight = interactiveLollipopConfig.height - interactiveLollipopConfig.margin.top - interactiveLollipopConfig.margin.bottom;
+			const interactiveLollipopRowsGroup = interactiveLollipopPlot.append('g').attr('class', 'lollipop-rows');
+			const interactiveLollipopXAxisGroup = interactiveLollipopSvg
+				.append('g')
+				.attr('class', 'lollipop-x-axis')
+				.attr('transform', `translate(${interactiveLollipopConfig.margin.left}, ${interactiveLollipopConfig.height - interactiveLollipopConfig.margin.bottom})`);
+			const interactiveLollipopX = d3.scaleLinear().range([0, interactiveLollipopInnerWidth]);
+			const interactiveLollipopY = d3.scaleBand().range([0, interactiveLollipopInnerHeight]).padding(0.5);
+			const interactiveLollipopEmptyLabel = interactiveLollipopSvg
+				.append('text')
+				.attr('class', 'chart-empty')
+				.attr('x', interactiveLollipopConfig.width / 2)
+				.attr('y', interactiveLollipopConfig.height / 2)
+				.attr('display', 'none')
+				.text('No keyword data');
+
+			const interactiveYears = Array.isArray(topGenres?.years)
+				? topGenres.years
+					.map(year => Number(year))
+					.filter(Number.isFinite)
+					.sort((a, b) => a - b)
+				: [];
+			if (interactiveYears.length) {
+				interactiveYearInput.min = interactiveYears[0];
+				interactiveYearInput.max = interactiveYears[interactiveYears.length - 1];
+				interactiveYearInput.value = interactiveYears[interactiveYears.length - 1];
+				interactiveYearInput.disabled = false;
+				interactiveYearInput.removeAttribute('disabled');
+				interactiveYearLabel.textContent = interactiveYearInput.value;
+			} else {
+				interactiveYearLabel.textContent = '--';
+			}
+
+			let interactiveLookup = new Map();
+			const tooltipOffset = 14;
+			let selectedCountry = null;  // Track selected country
+			let selectedCountryFeature = null;  // Track selected country feature for zooming
+
+			function normalizeKey(value) {
+				return String(value || '')
+					.toUpperCase()
+					.replace(/[^A-Z0-9]/g, '');
+			}
+
+			const COUNTRY_ALIASES = new Map([
+				['UNITEDSTATESOFAMERICA', 'USA'],
+				['UNITEDSTATES', 'USA'],
+				['RUSSIANFEDERATION', 'RUS'],
+				['RUSSIA', 'RUS'],
+				['BOLIVARIANREPUBLICOFVENEZUELA', 'VEN'],
+				['VENEZUELA', 'VEN'],
+				['DEMOCRATICREPUBLICOFTHECONGO', 'COD'],
+				['REPUBLICOFTHECONGO', 'COG'],
+				['COTEDIVOIRE', 'CIV'],
+				['IVORYCOAST', 'CIV'],
+				['UNITEDKINGDOM', 'ESB'],  // Data uses ESB for UK
+				['GREATBRITAIN', 'ESB'],
+				['BRITAIN', 'ESB'],
+				['ENGLAND', 'ESB'],  // GeoJSON uses "England"
+				['KOREAREPUBLICOF', 'KOR'],
+				['REPUBLICOFKOREA', 'KOR'],
+				['KOREAPEOPLESDEMOCRATICREPUBLIC', 'PRK'],
+				['PEOPLESDEMOCRATICREPUBLICOFKOREA', 'PRK'],
+				['SYRIANARABREPUBLIC', 'SYR'],
+				['LAOPEOPLESDEMOCRATICREPUBLIC', 'LAO'],
+				['IRANISLAMICREPUBLICOF', 'IRN'],
+				['MACAO', 'MAC'],
+				['MACAU', 'MAC'],
+				['HONGKONG', 'HKG'],
+				['PALESTINIANTERRITORY', 'PSE'],
+				['PALESTINESTATEOF', 'PSE'],
+				['OCCUPIEDPALESTINIANTERRITORY', 'PSE'],
+				['TANZANIAUNITEDREPUBLICOF', 'TZA'],
+				['UNITEDARABEMIRATES', 'ARE'],
+				['CZECHIA', 'CZE'],
+				['VIETNAM', 'VNM'],
+				['BOSNIAHERZEGOVINA', 'BIH'],
+				['ESWATINI', 'SWZ'],
+				['SWAZILAND', 'SWZ'],
+				['BURMA', 'MMR'],
+				['MYANMAR', 'MMR'],
+				['BOLIVIAPLURINATIONALSTATEOF', 'BOL'],
+				['NORTHMACEDONIA', 'MKD'],
+				['KYRGYZREPUBLIC', 'KGZ'],
+				['MOLDOVAREPUBLICOF', 'MDA'],
+				['CHINA', 'CHN'],
+				['PEOPLESREPUBLICOFCHINA', 'CHN'],
+				['VIETNAMSOCIALISTREPUBLICOF', 'VNM'],
+				['SOUTHSUDAN', 'SSD'],
+				['SUDAN', 'SDN'],
+				['VATICANCITY', 'VAT'],
+				['HOLYSEE', 'VAT'],
+				['CABOVERDE', 'CPV'],
+				['CAPEVERDE', 'CPV'],
+				['SAOTOMEANDPRINCIPE', 'STP'],
+				['TIMORLESTE', 'TLS'],
+				['DEMOCRATICPEOPLESREPUBLICOFKOREA', 'PRK'],
+			]);
+
+			function isoKeyOfFeature(feature) {
+				const props = feature?.properties || {};
+				const iso3 = (props.iso_a3 || props.ISO_A3 || props.adm0_a3 || props.ADM0_A3 || props.id || '')
+					.toString()
+					.toUpperCase();
+				if (/^[A-Z]{3}$/.test(iso3) && iso3 !== '-99') {
+					return iso3;
+				}
+				const iso2 = (props.iso_a2 || props.ISO_A2 || props.adm0_a2 || props.ADM0_A2 || '')
+					.toString()
+					.toUpperCase();
+				if (/^[A-Z]{2}$/.test(iso2) && iso2 !== '-99') {
+					return iso2;
+				}
+				const fallback = props.name || props.NAME || props.admin || props.sovereignt || props.name_long || '';
+				const normalized = normalizeKey(fallback);
+				return COUNTRY_ALIASES.get(normalized) || normalized;
+			}
+
+			function buildYearLookup(targetYear) {
+				// Use new country detail data
+				const yearData = window.COUNTRY_DETAIL_DATA?.records?.[String(targetYear)] || [];
+				const lookup = new Map();
+				const canonicalValues = [];
+				
+				// Group by country to get top genre per country
+				const countryMap = new Map();
+				for (const record of yearData) {
+					if (!record.iso3 || !record.genre) continue;
+					
+					if (!countryMap.has(record.iso3)) {
+						countryMap.set(record.iso3, record);
+					} else {
+						// Keep the record with highest popularity
+						const current = countryMap.get(record.iso3);
+						if (record.popularity > current.popularity) {
+							countryMap.set(record.iso3, record);
+						}
+					}
+				}
+				
+				// Build lookup with all possible keys
+				for (const record of countryMap.values()) {
+					const normalizedCountry = normalizeKey(record.country);
+					const lookupRecord = {
+						canonicalKey: record.iso3,
+						genre: record.genre,
+						popularity: record.popularity || 0,
+						vote: record.vote || null,
+						country: record.country,
+						iso3: record.iso3,
+						iso2: record.iso2 || null,
+						normalized: normalizedCountry,
+					};
+					canonicalValues.push(lookupRecord);
+					
+					// Get alias for this country's normalized name
+					const alias = COUNTRY_ALIASES.get(normalizedCountry) || null;
+					
+					// Also find all aliases that point to this country's ISO3
+					const reverseAliases = [];
+					for (const [aliasKey, aliasValue] of COUNTRY_ALIASES.entries()) {
+						if (aliasValue === record.iso3) {
+							reverseAliases.push(aliasKey);
+						}
+					}
+					
+					const variants = new Set([
+						record.iso3,
+						record.iso2,
+						normalizedCountry,
+						alias,
+						...reverseAliases
+					].filter(Boolean));
+					variants.forEach(key => lookup.set(key, lookupRecord));
+				}
+				return { lookup, canonicalValues };
+			}
+
+			function renderLegend(listSelection, genres, emptyMessage) {
+				const items = listSelection.selectAll('li').data(genres, d => d);
+				const entering = items.enter().append('li');
+				entering.append('span').attr('class', 'legend-swatch');
+				entering.append('span');
+				items.exit().remove();
+				const merged = entering.merge(items);
+				merged.select('.legend-swatch').style('background-color', d => colorScale(d));
+				merged.select('span:last-child').text(d => d);
+				if (!genres.length) {
+					listSelection.selectAll('*').remove();
+					listSelection.append('li').text(emptyMessage);
+				}
+			}
+
+			function updateLegend(genres) {
+				renderLegend(legendList, genres, 'No data for this year.');
+			}
+
+			function updateInteractiveLegend(genres) {
+				// Keep legend fixed - don't update it dynamically
+				// renderLegend(interactiveLegendList, genres, 'No data for the selected year.');
+			}
+
+			function updateInteractiveGenres(targetYear, countryKey = null) {
+				// Use detailed country data if available
+				const yearData = window.COUNTRY_DETAIL_DATA?.records?.[String(targetYear)] || [];
+				
+				// Filter by country if specified
+				let filteredData = yearData;
+				if (countryKey && yearData.length > 0) {
+					filteredData = yearData.filter(d => 
+						d.iso3 === countryKey || d.iso2 === countryKey
+					);
+				}
+				
+				// Aggregate by genre
+				const genreTotals = new Map();
+				for (const record of filteredData) {
+					if (!record.genre) continue;
+					
+					const current = genreTotals.get(record.genre) || { 
+						genre: record.genre, 
+						popularity: 0, 
+						count: 0 
+					};
+					current.popularity += record.popularity || 0;
+					current.count += record.count || 1;
+					genreTotals.set(record.genre, current);
+				}
+				
+				const data = Array.from(genreTotals.values())
+					.sort((a, b) => b.popularity - a.popularity)
+					.slice(0, 8);
+				
+				interactiveBarEmptyLabel.attr('display', data.length ? 'none' : null);
+				interactiveBarRowsGroup.attr('opacity', data.length ? 1 : 0);
+				interactiveBarXAxisGroup.attr('opacity', data.length ? 1 : 0);
+				
+				if (!data.length) {
+					return;
+				}
+				
+				interactiveBarX.domain([0, d3.max(data, d => d.popularity) || 1]).nice();
+				interactiveBarY.domain(data.map(d => d.genre));
+
+				const barRows = interactiveBarRowsGroup.selectAll('g.bar-row').data(data, d => d.genre);
+				const barRowsEnter = barRows
+					.enter()
+					.append('g')
+					.attr('class', 'bar-row');
+				barRowsEnter.append('rect').attr('class', 'bar-rect').attr('rx', 4).attr('ry', 4);
+				barRowsEnter.append('text').attr('class', 'bar-label');
+				barRowsEnter.append('text').attr('class', 'bar-value');
+				barRows.exit().remove();
+				
+				const mergedBars = barRowsEnter.merge(barRows);
+				mergedBars
+					.transition()
+					.duration(400)
+					.attr('transform', d => `translate(0, ${interactiveBarY(d.genre)})`);
+				mergedBars
+					.select('.bar-rect')
+					.transition()
+					.duration(400)
+					.attr('width', d => interactiveBarX(d.popularity))
+					.attr('height', interactiveBarY.bandwidth())
+					.attr('fill', d => colorScale(d.genre));
+				mergedBars
+					.select('.bar-label')
+					.attr('x', -12)
+					.attr('y', interactiveBarY.bandwidth() / 2)
+					.attr('dy', '0.35em')
+					.style('text-anchor', 'end')
+					.text(d => d.genre);
+				mergedBars
+					.select('.bar-value')
+					.attr('x', d => interactiveBarX(d.popularity) + 8)
+					.attr('y', interactiveBarY.bandwidth() / 2)
+					.attr('dy', '0.35em')
+					.text(d => d.popularity.toFixed(1));
+
+				interactiveBarXAxisGroup
+					.transition()
+					.duration(400)
+					.call(d3.axisBottom(interactiveBarX).ticks(4).tickSizeOuter(0))
+					.selectAll('text')
+					.attr('fill', '#9eb8ff');
+				interactiveBarXAxisGroup.selectAll('path,line').attr('stroke', axisColor);
+			}
+
+			function updateInteractiveKeywords(targetYear, countryKey = null) {
+				// Use detailed country data if available
+				const yearData = window.COUNTRY_DETAIL_DATA?.records?.[String(targetYear)] || [];
+				
+				// Filter by country if specified
+				let filteredData = yearData;
+				if (countryKey && yearData.length > 0) {
+					filteredData = yearData.filter(d => 
+						d.iso3 === countryKey || d.iso2 === countryKey
+					);
+				}
+				
+				// Count keyword occurrences from actual film data
+				const keywordCounts = new Map();
+				for (const record of filteredData) {
+					if (!record.keywords || !Array.isArray(record.keywords)) continue;
+					
+					const weight = (record.popularity || 1) * (record.count || 1);
+					record.keywords.forEach(keyword => {
+						const current = keywordCounts.get(keyword) || 0;
+						keywordCounts.set(keyword, current + weight);
+					});
+				}
+				
+				const data = Array.from(keywordCounts.entries())
+					.map(([keyword, count]) => ({ keyword, count }))
+					.sort((a, b) => b.count - a.count)
+					.slice(0, 10);
+				
+				interactiveLollipopEmptyLabel.attr('display', data.length ? 'none' : null);
+				interactiveLollipopRowsGroup.attr('opacity', data.length ? 1 : 0);
+				interactiveLollipopXAxisGroup.attr('opacity', data.length ? 1 : 0);
+				
+				if (!data.length) {
+					return;
+				}
+				
+				interactiveLollipopX.domain([0, d3.max(data, d => d.count) || 1]).nice();
+				interactiveLollipopY.domain(data.map(d => d.keyword));
+
+				const lollipopRows = interactiveLollipopRowsGroup.selectAll('g.lollipop-row').data(data, d => d.keyword);
+				const lollipopRowsEnter = lollipopRows
+					.enter()
+					.append('g')
+					.attr('class', 'lollipop-row');
+				lollipopRowsEnter.append('line').attr('class', 'lollipop-stem');
+				lollipopRowsEnter.append('circle').attr('class', 'lollipop-head');
+				lollipopRowsEnter.append('text').attr('class', 'lollipop-label');
+				lollipopRowsEnter.append('text').attr('class', 'lollipop-value');
+				lollipopRows.exit().remove();
+				
+				const mergedLollipops = lollipopRowsEnter.merge(lollipopRows);
+				mergedLollipops
+					.transition()
+					.duration(400)
+					.attr('transform', d => `translate(0, ${interactiveLollipopY(d.keyword)})`);
+				
+				mergedLollipops.select('.lollipop-stem')
+					.transition()
+					.duration(400)
+					.attr('x1', 0)
+					.attr('y1', interactiveLollipopY.bandwidth() / 2)
+					.attr('x2', d => interactiveLollipopX(d.count))
+					.attr('y2', interactiveLollipopY.bandwidth() / 2)
+					.attr('stroke', axisColor)
+					.attr('stroke-width', 6);
+				
+				mergedLollipops.select('.lollipop-head')
+					.transition()
+					.duration(400)
+					.attr('cx', d => interactiveLollipopX(d.count))
+					.attr('cy', interactiveLollipopY.bandwidth() / 2)
+					.attr('r', 18)
+					.attr('fill', '#9ed0ff')
+					.attr('stroke', '#23324f')
+					.attr('stroke-width', 4);
+				
+				mergedLollipops.select('.lollipop-label')
+					.attr('x', -12)
+					.attr('y', interactiveLollipopY.bandwidth() / 2)
+					.attr('dy', '0.35em')
+					.style('text-anchor', 'end')
+					.text(d => d.keyword);
+				
+				mergedLollipops.select('.lollipop-value')
+					.attr('x', d => interactiveLollipopX(d.count) + 24)
+					.attr('y', interactiveLollipopY.bandwidth() / 2)
+					.attr('dy', '0.35em')
+					.text(d => d.count.toFixed(1));
+
+				interactiveLollipopXAxisGroup
+					.transition()
+					.duration(400)
+					.call(d3.axisBottom(interactiveLollipopX).ticks(4).tickSizeOuter(0))
+					.selectAll('text')
+					.attr('fill', '#9eb8ff');
+				interactiveLollipopXAxisGroup.selectAll('path,line').attr('stroke', axisColor);
+			}
+
+			function showInteractiveTooltip(content, event) {
+				if (typeof event?.clientX !== 'number' || typeof event?.clientY !== 'number') {
+					interactiveTooltip
+						.style('opacity', 1)
+						.style('left', '50%')
+						.style('top', '50%')
+						.attr('aria-hidden', 'false')
+						.html(content);
+					return;
+				}
+				interactiveTooltip
+					.style('opacity', 1)
+					.style('left', `${event.clientX + tooltipOffset}px`)
+					.style('top', `${event.clientY + tooltipOffset}px`)
+					.attr('aria-hidden', 'false')
+					.html(content);
+			}
+
+			function hideInteractiveTooltip() {
+				interactiveTooltip.style('opacity', 0).attr('aria-hidden', 'true');
+			}
+
+			function updateGlobalGenres(region = 'global') {
+				let genreData;
+				
+				if (region === 'global') {
+					// Use cumulative data across all regions
+					const totals = new Map();
+					for (const record of cumulativeRecords) {
+						const genre = record[1];
+						const popularity = record[2];
+						const current = totals.get(genre) || { genre, popularity: 0, countries: 0 };
+						current.popularity += popularity;
+						current.countries += 1;
+						totals.set(genre, current);
+					}
+					genreData = Array.from(totals.values());
+				} else {
+					// Use regional data
+					const regionData = regionalGenres?.[region] || {};
+					genreData = Object.entries(regionData).map(([genre, stats]) => ({
+						genre,
+						popularity: stats.popularity || 0,
+						countries: stats.count || 0
+					}));
+				}
+				
+				const data = genreData
+					.sort((a, b) => b.popularity - a.popularity)
+					.slice(0, 8);
+				
+				barEmptyLabel.attr('display', data.length ? 'none' : null);
+				barRowsGroup.attr('opacity', data.length ? 1 : 0);
+				barXAxisGroup.attr('opacity', data.length ? 1 : 0);
+				if (!data.length) {
+					return;
+				}
+				barX.domain([0, d3.max(data, d => d.popularity) || 1]).nice();
+				barY.domain(data.map(d => d.genre));
+
+				const rows = barRowsGroup.selectAll('g.bar-row').data(data, d => d.genre);
+				const rowsEnter = rows
+					.enter()
+					.append('g')
+					.attr('class', 'bar-row');
+				rowsEnter.append('rect').attr('class', 'bar-rect').attr('rx', 4).attr('ry', 4);
+				rowsEnter.append('text').attr('class', 'bar-label');
+				rowsEnter.append('text').attr('class', 'bar-value');
+				rows.exit().remove();
+				const merged = rowsEnter.merge(rows);
+				merged.attr('transform', d => `translate(0, ${barY(d.genre)})`);
+				merged
+					.select('.bar-rect')
+					.attr('width', d => barX(d.popularity))
+					.attr('height', barY.bandwidth())
+					.attr('fill', d => colorScale(d.genre));
+				merged
+					.select('.bar-label')
+					.attr('x', -12)
+					.attr('y', barY.bandwidth() / 2)
+					.attr('dy', '0.35em')
+					.style('text-anchor', 'end')
+					.text(d => d.genre);
+				merged
+					.select('.bar-value')
+					.attr('x', d => barX(d.popularity) + 8)
+					.attr('y', barY.bandwidth() / 2)
+					.attr('dy', '0.35em')
+					.text(d => d.popularity.toFixed(1));
+
+				barXAxisGroup
+					.call(d3.axisBottom(barX).ticks(4).tickSizeOuter(0))
+					.selectAll('text')
+					.attr('fill', '#9eb8ff');
+				barXAxisGroup.selectAll('path,line').attr('stroke', axisColor);
+			}
+
+			function regionForRecord(record) {
+				if (!record) {
+					return REGION_FALLBACK;
+				}
+				const candidates = [
+					record.iso3,
+					record.iso2,
+					record.canonicalKey,
+					COUNTRY_ALIASES.get(record.normalized),
+					record.normalized,
+				];
+				for (const raw of candidates) {
+					const code = (raw || '').toString().toUpperCase();
+					if (!code) continue;
+					if (REGION_LOOKUP.has(code)) {
+						return REGION_LOOKUP.get(code);
+					}
+				}
+				return REGION_FALLBACK;
+			}
+
+			function updateRegionSummary(region = 'global') {
+				// Get region-specific countries
+				let filteredRecords;
+				if (region === 'global') {
+					filteredRecords = cumulativeRecords;
+				} else {
+					const regionCodes = REGION_GROUPS.get(region) || new Set();
+					filteredRecords = cumulativeRecords.filter(record => {
+						const iso_code = record[0];
+						const iso3 = record[5];
+						const iso2 = record[6];
+						return regionCodes.has(iso_code) || regionCodes.has(iso3) || regionCodes.has(iso2);
+					});
+				}
+				
+				// Count keyword occurrences based on genre popularity using real TMDB keywords
+				const keywordCounts = new Map();
+				for (const record of filteredRecords) {
+					const genre = record[1];
+					const popularity = record[2];
+					const keywords = genreKeywords[genre] || [];
+					keywords.forEach(keyword => {
+						const current = keywordCounts.get(keyword) || 0;
+						keywordCounts.set(keyword, current + popularity);
+					});
+				}
+				
+				const data = Array.from(keywordCounts.entries())
+					.map(([keyword, count]) => ({ keyword, count }))
+					.sort((a, b) => b.count - a.count)
+					.slice(0, 10);
+				
+				lollipopEmptyLabel.attr('display', data.length ? 'none' : null);
+				lollipopRowsGroup.attr('opacity', data.length ? 1 : 0);
+				lollipopXAxisGroup.attr('opacity', data.length ? 1 : 0);
+				if (!data.length) {
+					return;
+				}
+				
+				// Horizontal lollipop configuration
+				lollipopX.domain([0, d3.max(data, d => d.count) || 1]).nice();
+				lollipopY.domain(data.map(d => d.keyword));
+
+				const rows = lollipopRowsGroup.selectAll('g.lollipop-row').data(data, d => d.keyword);
+				const rowsEnter = rows
+					.enter()
+					.append('g')
+					.attr('class', 'lollipop-row');
+				rowsEnter.append('line').attr('class', 'lollipop-stem');
+				rowsEnter.append('circle').attr('class', 'lollipop-head');
+				rowsEnter.append('text').attr('class', 'lollipop-label');
+				rowsEnter.append('text').attr('class', 'lollipop-value');
+				rows.exit().remove();
+				
+				const merged = rowsEnter.merge(rows);
+				merged.attr('transform', d => `translate(0, ${lollipopY(d.keyword)})`);
+				
+				// Update stem (horizontal line from 0 to value)
+				merged.select('.lollipop-stem')
+					.attr('x1', 0)
+					.attr('y1', lollipopY.bandwidth() / 2)
+					.attr('x2', d => lollipopX(d.count))
+					.attr('y2', lollipopY.bandwidth() / 2)
+					.attr('stroke', axisColor)
+					.attr('stroke-width', 6);
+				
+				// Update head (circle at the end)
+				merged.select('.lollipop-head')
+					.attr('cx', d => lollipopX(d.count))
+					.attr('cy', lollipopY.bandwidth() / 2)
+					.attr('r', 18)
+					.attr('fill', '#9ed0ff')
+					.attr('stroke', '#23324f')
+					.attr('stroke-width', 4);
+				
+				// Update label (keyword on the left)
+				merged.select('.lollipop-label')
+					.attr('x', -12)
+					.attr('y', lollipopY.bandwidth() / 2)
+					.attr('dy', '0.35em')
+					.attr('transform', null)
+					.style('text-anchor', 'end')
+					.style('font-size', null)
+					.text(d => d.keyword);
+				
+				// Update value (count on the right)
+				merged.select('.lollipop-value')
+					.attr('x', d => lollipopX(d.count) + 24)
+					.attr('y', lollipopY.bandwidth() / 2)
+					.attr('dy', '0.35em')
+					.text(d => d.count.toFixed(1));
+
+				lollipopXAxisGroup
+					.call(d3.axisBottom(lollipopX).ticks(4).tickSizeOuter(0))
+					.selectAll('text')
+					.attr('fill', '#9eb8ff');
+				lollipopXAxisGroup.selectAll('path,line').attr('stroke', axisColor);
+			}
+
+			function updateInteractiveMap(targetYear) {
+				if (!Number.isFinite(targetYear)) {
+					return;
+				}
+				hideInteractiveTooltip();
+				const { lookup, canonicalValues } = buildYearLookup(targetYear);
+				interactiveLookup = lookup;
+				interactiveCountries
+					.attr('fill', d => {
+						const key = isoKeyOfFeature(d);
+						const rec = lookup.get(key);
+						return rec ? colorScale(rec.genre) : '#182132';
+					})
+					.classed('has-data', d => lookup.has(isoKeyOfFeature(d)));
+				
+				// Update charts with current country filter
+				updateInteractiveGenres(targetYear, selectedCountry);
+				updateInteractiveKeywords(targetYear, selectedCountry);
+			}
+
+			function zoomToCountry(feature) {
+				// For globe: rotate to center the country with smooth animation
+				const centroid = d3.geoCentroid(feature);
+				const targetRotation = [-centroid[0], -centroid[1], 0];
+				
+				// Get the screen position of the centroid after rotation
+				interactiveProjection.rotate(targetRotation);
+				const [x, y] = interactiveProjection(centroid);
+				
+				// Calculate transform to center and scale
+				const scale = 2.2;
+				const centerX = interactiveConfig.width / 2;
+				const centerY = interactiveConfig.height / 2;
+				
+				// Create zoom transform that centers on the country
+				const transform = d3.zoomIdentity
+					.translate(centerX, centerY)
+					.scale(scale)
+					.translate(-x, -y);
+				
+				// Animate rotation
+				const interpolateRotation = d3.interpolate(rotationState.rotation, targetRotation);
+				
+				const transition = d3.transition()
+					.duration(1000)
+					.ease(d3.easeCubicInOut);
+				
+				transition.tween('rotate', () => {
+					return (t) => {
+						const currentRotation = interpolateRotation(t);
+						rotationState.rotation = currentRotation;
+						interactiveProjection.rotate(currentRotation);
+						interactiveCountries.attr('d', interactivePath);
+						interactiveGroup.select('.globe-sphere').attr('d', interactivePath);
+					};
+				});
+				
+				// Apply zoom transform for closer view centered on country
+				interactiveSvg
+					.transition()
+					.duration(1000)
+					.ease(d3.easeCubicInOut)
+					.call(
+						interactiveZoom.transform,
+						transform
+					);
+			}
+
+			function resetZoom() {
+				selectedCountry = null;
+				selectedCountryFeature = null;
+				document.getElementById('interactive-country-name').textContent = 'All countries';
+				document.getElementById('interactive-keywords-country').textContent = 'All countries';
+				document.getElementById('reset-zoom-btn').style.display = 'none';
+				
+				// Remove selected class from all countries
+				interactiveCountries.classed('selected', false);
+				
+				// Reset globe rotation to Philippines with smooth animation
+				const targetRotation = [-122, -12, 0];
+				const interpolateRotation = d3.interpolate(rotationState.rotation, targetRotation);
+				
+				const transition = d3.transition()
+					.duration(1000)
+					.ease(d3.easeCubicInOut);
+				
+				transition.tween('rotate', () => {
+					return (t) => {
+						const currentRotation = interpolateRotation(t);
+						rotationState.rotation = currentRotation;
+						interactiveProjection.rotate(currentRotation);
+						interactiveCountries.attr('d', interactivePath);
+						interactiveGroup.select('.globe-sphere').attr('d', interactivePath);
+					};
+				});
+				
+				// Reset zoom transform
+				interactiveSvg
+					.transition()
+					.duration(1000)
+					.ease(d3.easeCubicInOut)
+					.call(interactiveZoom.transform, d3.zoomIdentity);
+				
+				// Update charts to show all countries
+				const year = Number(interactiveYearInput.value);
+				updateInteractiveGenres(year, null);
+				updateInteractiveKeywords(year, null);
+			}
+
+			function recolorMap(region = 'global') {
+				// Build lookup from country_details data (aggregated across all years)
+				const lookup = new Map();
+				const countryDetailData = window.COUNTRY_DETAIL_DATA;
+				
+				if (countryDetailData && countryDetailData.records && countryDetailData.years) {
+					// Aggregate data across all years for each country
+					const countryGenreMap = new Map();
+					
+					countryDetailData.years.forEach(year => {
+						const yearRecords = countryDetailData.records[year.toString()];
+						if (!yearRecords || !Array.isArray(yearRecords)) return;
+						
+						yearRecords.forEach(record => {
+							if (!record.iso3 || !record.genre) return;
+							
+							const key = record.iso3;
+							if (!countryGenreMap.has(key)) {
+								countryGenreMap.set(key, {
+									country: record.country,
+									iso3: record.iso3,
+									iso2: record.iso2,
+									genres: new Map()
+								});
+							}
+							
+							const countryData = countryGenreMap.get(key);
+							const currentCount = countryData.genres.get(record.genre) || 0;
+							countryData.genres.set(record.genre, currentCount + 1);
+						});
+					});
+					
+					// Get top genre for each country
+					for (const [countryCode, countryData] of countryGenreMap.entries()) {
+						let topGenre = null;
+						let maxCount = 0;
+						
+						for (const [genre, count] of countryData.genres.entries()) {
+							if (count > maxCount) {
+								maxCount = count;
+								topGenre = genre;
+							}
+						}
+						
+						if (topGenre) {
+							const normalized = normalizeKey(countryData.country);
+							const recordData = {
+								canonicalKey: countryData.iso3,
+								genre: topGenre,
+								popularity: maxCount,
+								vote: null,
+								country: countryData.country,
+								iso3: countryData.iso3,
+								iso2: countryData.iso2,
+								normalized
+							};
+							
+							const alias = COUNTRY_ALIASES.get(normalized) || null;
+							const variants = new Set([
+								countryData.iso3,
+								countryData.iso2,
+								normalized,
+								alias
+							].filter(Boolean));
+							
+							variants.forEach(key => lookup.set(key, recordData));
+						}
+					}
+				}
+				
+				countries
+					.attr('fill', d => {
+						const key = isoKeyOfFeature(d);
+						const rec = lookup.get(key);
+						return rec ? colorScale(rec.genre) : '#182132';
+					})
+					.classed('has-data', d => lookup.has(isoKeyOfFeature(d)));
+				
+				const activeGenres = Array.from(new Set(Array.from(lookup.values()).map(r => r.genre))).sort();
+				updateGlobalGenres(region);
+				updateRegionSummary(region);
+			}
+
+			interactiveCountries
+				.style('cursor', 'pointer')
+				.on('click', (event, feature) => {
+					// Ignore click if it was actually a drag
+					if (rotationState.isDragging) {
+						return;
+					}
+					
+					event.stopPropagation();
+					const key = isoKeyOfFeature(feature);
+					const record = interactiveLookup.get(key);
+					const name = feature.properties?.name || feature.properties?.NAME || 'Unknown';
+					
+					if (record) {
+						const clickedCountryCode = record.iso3 || record.iso2 || key;
+						
+						// Check if clicking on already selected country
+						if (selectedCountry === clickedCountryCode) {
+							// Reset zoom if clicking on already selected country
+							resetZoom();
+							return;
+						}
+						
+						// Remove selected class from all countries
+						interactiveCountries.classed('selected', false);
+						
+						// Add selected class to clicked country
+						d3.select(event.currentTarget).classed('selected', true);
+						
+						selectedCountry = clickedCountryCode;
+						selectedCountryFeature = feature;
+						document.getElementById('interactive-country-name').textContent = name;
+						document.getElementById('interactive-keywords-country').textContent = name;
+						document.getElementById('reset-zoom-btn').style.display = 'block';
+						
+						zoomToCountry(feature);
+						
+						// Update charts to show country-specific data
+						const year = Number(interactiveYearInput.value);
+						updateInteractiveGenres(year, selectedCountry);
+						updateInteractiveKeywords(year, selectedCountry);
+					}
+				})
+				.on('pointermove', (event, feature) => {
+					const key = isoKeyOfFeature(feature);
+					const record = interactiveLookup.get(key);
+					const name = feature.properties?.name || feature.properties?.NAME || 'Unknown';
+					if (record) {
+						const voteLine = typeof record.vote === 'number' && Number.isFinite(record.vote)
+							? `<br>Avg vote: ${record.vote.toFixed(2)}`
+							: '';
+						showInteractiveTooltip(
+							`<strong>${name}</strong><br>Genre: <b>${record.genre}</b><br>Popularity: ${record.popularity.toFixed(3)}${voteLine}`,
+							event
+						);
+					} else {
+						showInteractiveTooltip(
+							`<strong>${name}</strong><br>No data for ${interactiveYearLabel.textContent}`,
+							event
+						);
+					}
+				})
+				.on('pointerleave', () => {
+				hideInteractiveTooltip();
+			});
+		interactiveSvg.on('pointerleave', hideInteractiveTooltip);
+
+		if (interactiveYears.length) {
+			updateInteractiveMap(Number(interactiveYearInput.value));
+		}			interactiveYearInput.addEventListener('input', () => {
+				const year = Number(interactiveYearInput.value);
+				interactiveYearLabel.textContent = interactiveYearInput.value;
+				updateInteractiveMap(year);
+			});
+			interactiveYearInput.addEventListener('change', () => {
+				const year = Number(interactiveYearInput.value);
+				interactiveYearLabel.textContent = interactiveYearInput.value;
+				updateInteractiveMap(year);
+			});
+
+			// Reset zoom button
+			document.getElementById('reset-zoom-btn').addEventListener('click', resetZoom);
+
+			// Click on SVG background to reset zoom
+			interactiveSvg.on('click', (event) => {
+				if (event.target === event.currentTarget || event.target.tagName === 'svg') {
+					if (selectedCountry) {
+						resetZoom();
+					}
+				}
+			});
+
+			const mapObserver = new IntersectionObserver(
+				entries => {
+					entries.forEach(entry => {
+						if (!entry.isIntersecting) {
+							return;
+						}
+						const region = entry.target.dataset.mapRegion || 'global';
+						const note = entry.target.dataset.mapNote || '';
+						// Capitalize first letter of region for display
+						const regionLabel = region === 'global' ? 'Global' : region.charAt(0).toUpperCase() + region.slice(1);
+						mapYearLabel.textContent = regionLabel;
+						mapNote.textContent = note || 'Scroll the narrative to explore regional differences.';
+						
+						// Zoom to region and update charts
+						zoomToRegion(region);
+						recolorMap(region);
+					});
+				},
+				{ threshold: 0.6 }
+			);
+
+			// Region center coordinates and zoom scales
+			const regionViewports = {
+				'global': { center: [10, 35], scale: 180 },
+				'North America': { center: [-95, 40], scale: 320 },
+				'South America': { center: [-60, -15], scale: 380 },
+				'Europe': { center: [15, 50], scale: 450 },
+				'East Asia': { center: [115, 35], scale: 380 },
+				'South Asia': { center: [78, 22], scale: 450 },
+				'Southeast Asia': { center: [110, 5], scale: 480 },
+				'Central Asia': { center: [65, 45], scale: 500 },
+				'Middle East': { center: [45, 30], scale: 450 },
+				'Africa': { center: [20, 0], scale: 380 },
+				'Oceania': { center: [135, -25], scale: 550 }
+			};
+
+			function zoomToRegion(region) {
+				const viewport = regionViewports[region] || regionViewports['global'];
+				projection
+					.center(viewport.center)
+					.scale(viewport.scale);
+				
+				countries
+					.transition()
+					.duration(800)
+					.attr('d', path);
+			}
+
+			mapSteps.forEach(step => mapObserver.observe(step));
+			if (mapSteps.length) {
+				const initialRegion = mapSteps[0].dataset.mapRegion || 'global';
+				const initialRegionLabel = initialRegion === 'global' ? 'Global' : initialRegion.charAt(0).toUpperCase() + initialRegion.slice(1);
+				mapYearLabel.textContent = initialRegionLabel;
+				mapNote.textContent = mapSteps[0].dataset.mapNote || 'Scroll the narrative to explore regional differences.';
+				zoomToRegion(initialRegion);
+				recolorMap(initialRegion);
+			}
+	})();
+
+	// Film strip scroll animation
+	(function() {
+		let ticking = false;
+		
+		function updateFilmStripPosition() {
+			const scrollY = window.scrollY;
+			// Move perforations based on scroll - multiply by 0.5 for slower movement
+			const offset = (scrollY * 0.5) % 19;
+			
+			document.documentElement.style.setProperty('--film-offset', `${offset}px`);
+			ticking = false;
+		}
+		
+		window.addEventListener('scroll', function() {
+			if (!ticking) {
+				window.requestAnimationFrame(updateFilmStripPosition);
+				ticking = true;
+			}
+		});
+		
+		// Initialize
+		updateFilmStripPosition();
+	})();
+
+	// Comparative spotlight visualizations
+	(function() {
+		const world = window.WORLD_GEOJSON;
+		const countryDetailData = window.COUNTRY_DETAIL_DATA;
+		
+		// Create a color scale for genres (matching the main visualization)
+		const genreList = window.CUMULATIVE_GENRE_DATA?.genres || [];
+		const BASE_GENRE_PALETTE = [
+			'#4895ef', '#fee440', '#f72585', '#4cc9f0', '#ff9f1c', '#b5179e', '#06d6a0', '#e63946', 
+			'#7f5af0', '#80ffdb', '#ffd166', '#7209b7', '#ff6b6b', '#c77dff', '#2a9d8f', '#f15bb5', 
+			'#56cfe1', '#52b788', '#118ab2', '#ef476f'
+		];
+		const comparisonColorScale = d3.scaleOrdinal()
+			.domain(genreList.slice().sort())
+			.range(BASE_GENRE_PALETTE.slice(0, genreList.length));
+		
+		// Helper function to get aggregated country data across ALL years
+		function getCountryData(countryCode) {
+			if (!countryDetailData || !countryDetailData.records || !countryDetailData.years) return null;
+			
+			const genreMap = new Map();
+			const allKeywords = [];
+			
+			// Aggregate data across all years
+			countryDetailData.years.forEach(year => {
+				const yearRecords = countryDetailData.records[year.toString()];
+				if (!yearRecords || !Array.isArray(yearRecords)) return;
+				
+				// Filter records for this country
+				const countryRecords = yearRecords.filter(r => 
+					r.iso3 === countryCode || r.iso2 === countryCode
+				);
+				
+				countryRecords.forEach(record => {
+					// Accumulate genre counts
+					const existing = genreMap.get(record.genre) || { genre: record.genre, count: 0 };
+					existing.count += record.count || 0;
+					genreMap.set(record.genre, existing);
+					
+					// Accumulate keywords
+					if (record.keywords && Array.isArray(record.keywords)) {
+						allKeywords.push(...record.keywords);
+					}
+				});
+			});
+			
+			const genres = Array.from(genreMap.values());
+			if (genres.length === 0) return null;
+			
+			const topGenre = genres.reduce((a, b) => a.count > b.count ? a : b).genre;
+			
+			// Count keyword frequencies
+			const keywordMap = new Map();
+			allKeywords.forEach(keyword => {
+				keywordMap.set(keyword, (keywordMap.get(keyword) || 0) + 1);
+			});
+			
+			const keywords = Array.from(keywordMap.entries())
+				.map(([keyword, count]) => ({ keyword, count }))
+				.sort((a, b) => b.count - a.count);
+			
+			return { genres, topGenre, keywords };
+		}
+		
+		// Helper function to render comparison map for a country
+		function renderComparisonMap(svgId, countryCode) {
+			const svg = d3.select(`#${svgId}`);
+			const width = 600;
+			const height = 500;
+			
+			svg.selectAll('*').remove();
+			
+			// Add dark background
+			svg.append('rect')
+				.attr('width', width)
+				.attr('height', height)
+				.attr('fill', '#0b0f18');
+			
+			if (!world || !world.features) {
+				svg.append('text')
+					.attr('x', width / 2)
+					.attr('y', height / 2)
+					.attr('text-anchor', 'middle')
+					.attr('fill', '#9da9bc')
+					.attr('font-size', '0.9rem')
+					.text('Map data not available');
+				return;
+			}
+			
+			const g = svg.append('g');
+			
+			// Create projection centered on the country with proper zoom
+			let projection;
+			if (countryCode === 'USA') {
+				// Albers USA projection for proper display of Alaska and Hawaii
+				projection = d3.geoAlbersUsa()
+					.scale(800)
+					.translate([width / 2, height / 2]);
+			} else if (countryCode === 'IND') {
+				// Mercator projection centered on India
+				projection = d3.geoMercator()
+					.scale(1200)
+					.center([78.9629, 20.5937])  // Center of India
+					.translate([width / 2, height / 2]);
+			}
+			
+			const path = d3.geoPath().projection(projection);
+			
+			// Get aggregated data for this country across all years
+			const countryData = getCountryData(countryCode);
+			const topGenre = countryData ? countryData.topGenre : null;
+			const genreColor = topGenre ? comparisonColorScale(topGenre) : '#182132';
+			
+			console.log(`Rendering ${countryCode} map - Top genre: ${topGenre}, Color: ${genreColor}`);
+			
+			// Filter and draw the specific country using the actual 'name' property
+			const countryFeatures = world.features.filter(d => {
+				const name = d.properties.name || '';
+				
+				if (countryCode === 'USA') {
+					return name === 'USA';
+				} else if (countryCode === 'IND') {
+					return name === 'India';
+				}
+				return false;
+			});
+			
+			console.log(`Found ${countryFeatures.length} features for ${countryCode}`);
+			
+			if (countryFeatures.length === 0) {
+				svg.append('text')
+					.attr('x', width / 2)
+					.attr('y', height / 2)
+					.attr('text-anchor', 'middle')
+					.attr('fill', '#9da9bc')
+					.attr('font-size', '0.9rem')
+					.text(`Country ${countryCode} not found in geodata`);
+				return;
+			}
+			
+			// Draw the country
+			g.selectAll('path')
+				.data(countryFeatures)
+				.join('path')
+				.attr('d', path)
+				.attr('fill', genreColor)
+				.attr('stroke', '#d7e3ff')
+				.attr('stroke-width', 0.7)
+				.attr('opacity', 0.9);
+			
+			// Add title with styling matching image
+			svg.append('text')
+				.attr('x', 20)
+				.attr('y', 30)
+				.attr('text-anchor', 'start')
+				.attr('font-size', '0.72rem')
+				.attr('font-weight', '500')
+				.attr('fill', '#9eb8ff')
+				.attr('letter-spacing', '0.1em')
+				.style('text-transform', 'uppercase')
+				.text(`${countryCode} - Top: ${topGenre || 'N/A'}`);
+		}
+		
+		// Helper function to render comparison bar chart
+		function renderComparisonBarChart(svgId, countryCode) {
+			const svg = d3.select(`#${svgId}`);
+			const margin = { top: 50, right: 40, bottom: 60, left: 140 };
+			const width = 700 - margin.left - margin.right;
+			const height = 375 - margin.top - margin.bottom;
+			
+			svg.selectAll('*').remove();
+			
+			// Add dark background
+			svg.append('rect')
+				.attr('width', 700)
+				.attr('height', 375)
+				.attr('fill', '#0d1018');
+			
+			// Get aggregated data for this country across all years
+			const countryData = getCountryData(countryCode);
+			
+			console.log(`Bar chart for ${countryCode}:`, countryData);
+			
+			if (!countryData || !countryData.genres || countryData.genres.length === 0) {
+				svg.append('text')
+					.attr('x', 350)
+					.attr('y', 187.5)
+					.attr('text-anchor', 'middle')
+					.attr('fill', '#9da9bc')
+					.attr('font-size', '0.9rem')
+					.text(`No data available for ${countryCode}`);
+				return;
+			}
+			
+			// Sort and get top 5 genres by count for this specific country
+			const topGenres = countryData.genres
+				.sort((a, b) => b.count - a.count)
+				.slice(0, 5);
+			
+			console.log(`Top 5 genres for ${countryCode}:`, topGenres);
+			
+			const g = svg.append('g')
+				.attr('transform', `translate(${margin.left},${margin.top})`);
+			
+			// Scales
+			const x = d3.scaleLinear()
+				.domain([0, d3.max(topGenres, d => d.count)])
+				.nice()
+				.range([0, width]);
+			
+			const y = d3.scaleBand()
+				.domain(topGenres.map(d => d.genre))
+				.range([0, height])
+				.padding(0.3);
+			
+			// Bars with matching style from image
+			g.selectAll('.bar')
+				.data(topGenres)
+				.join('rect')
+				.attr('class', 'bar')
+				.attr('x', 0)
+				.attr('y', d => y(d.genre))
+				.attr('width', d => x(d.count))
+				.attr('height', y.bandwidth())
+				.attr('fill', d => comparisonColorScale(d.genre))
+				.attr('opacity', 0.9)
+				.attr('rx', 2);
+			
+			// X axis with dark theme
+			const xAxis = d3.axisBottom(x).ticks(5);
+			g.append('g')
+				.attr('class', 'x-axis')
+				.attr('transform', `translate(0,${height})`)
+				.call(xAxis)
+				.call(g => g.select('.domain').attr('stroke', '#2a3a52'))
+				.call(g => g.selectAll('.tick line').attr('stroke', '#2a3a52'))
+				.call(g => g.selectAll('.tick text')
+					.attr('fill', '#7e8ba3')
+					.attr('font-size', '0.7rem'));
+			
+			// Y axis with dark theme
+			const yAxis = d3.axisLeft(y);
+			g.append('g')
+				.attr('class', 'y-axis')
+				.call(yAxis)
+				.call(g => g.select('.domain').attr('stroke', '#2a3a52'))
+				.call(g => g.selectAll('.tick line').attr('stroke', '#2a3a52'))
+				.call(g => g.selectAll('.tick text')
+					.attr('fill', '#cbd5e8')
+					.attr('font-size', '0.75rem')
+					.attr('font-weight', '400'));
+			
+			// Labels on bars
+			g.selectAll('.label')
+				.data(topGenres)
+				.join('text')
+				.attr('class', 'label')
+				.attr('x', d => x(d.count) + 5)
+				.attr('y', d => y(d.genre) + y.bandwidth() / 2)
+				.attr('dy', '0.35em')
+				.attr('fill', '#f5f8ff')
+				.attr('font-size', '0.7rem')
+				.attr('font-weight', '500')
+				.text(d => d.count);
+			
+			// Title with country name
+			const countryName = countryCode === 'USA' ? 'United States' : 'India';
+			svg.append('text')
+				.attr('x', 20)
+				.attr('y', 25)
+				.attr('text-anchor', 'start')
+				.attr('font-size', '0.72rem')
+				.attr('font-weight', '500')
+				.attr('fill', '#9eb8ff')
+				.attr('letter-spacing', '0.1em')
+				.style('text-transform', 'uppercase')
+				.text(`${countryName} - Genre Leaders`);
+		}
+		
+		// Helper function to render comparison lollipop chart
+		function renderComparisonLollipopChart(svgId, countryCode) {
+			const svg = d3.select(`#${svgId}`);
+			const margin = { top: 50, right: 60, bottom: 60, left: 140 };
+			const width = 700 - margin.left - margin.right;
+			const height = 375 - margin.top - margin.bottom;
+			
+			svg.selectAll('*').remove();
+			
+			// Add dark background
+			svg.append('rect')
+				.attr('width', 700)
+				.attr('height', 375)
+				.attr('fill', '#0d1018');
+			
+			// Get aggregated data for this country across all years
+			const countryData = getCountryData(countryCode);
+			
+			console.log(`Lollipop chart for ${countryCode}:`, countryData);
+			
+			if (!countryData || !countryData.keywords || countryData.keywords.length === 0) {
+				svg.append('text')
+					.attr('x', 350)
+					.attr('y', 187.5)
+					.attr('text-anchor', 'middle')
+					.attr('fill', '#9da9bc')
+					.attr('font-size', '0.9rem')
+					.text(`No keyword data for ${countryCode}`);
+				return;
+			}
+			
+			// Get top 10 keywords for this specific country
+			const topKeywords = countryData.keywords.slice(0, 10);
+			
+			console.log(`Top 10 keywords for ${countryCode}:`, topKeywords);
+			
+			const g = svg.append('g')
+				.attr('transform', `translate(${margin.left},${margin.top})`);
+			
+			// Scales
+			const x = d3.scaleLinear()
+				.domain([0, d3.max(topKeywords, d => d.count)])
+				.nice()
+				.range([0, width]);
+			
+			const y = d3.scaleBand()
+				.domain(topKeywords.map(d => d.keyword))
+				.range([0, height])
+				.padding(0.4);
+			
+			// Lines with dark theme
+			g.selectAll('.lollipop-line')
+				.data(topKeywords)
+				.join('line')
+				.attr('class', 'lollipop-line')
+				.attr('x1', 0)
+				.attr('x2', d => x(d.count))
+				.attr('y1', d => y(d.keyword) + y.bandwidth() / 2)
+				.attr('y2', d => y(d.keyword) + y.bandwidth() / 2)
+				.attr('stroke', '#2a3a52')
+				.attr('stroke-width', 1.5);
+			
+			// Circles matching image style
+			g.selectAll('.lollipop-circle')
+				.data(topKeywords)
+				.join('circle')
+				.attr('class', 'lollipop-circle')
+				.attr('cx', d => x(d.count))
+				.attr('cy', d => y(d.keyword) + y.bandwidth() / 2)
+				.attr('r', 5)
+				.attr('fill', '#9eb8ff')
+				.attr('opacity', 0.95);
+			
+			// Labels
+			g.selectAll('.lollipop-label')
+				.data(topKeywords)
+				.join('text')
+				.attr('class', 'lollipop-label')
+				.attr('x', d => x(d.count) + 10)
+				.attr('y', d => y(d.keyword) + y.bandwidth() / 2)
+				.attr('dy', '0.35em')
+				.attr('fill', '#f5f8ff')
+				.attr('font-size', '0.4rem')
+				.attr('font-weight', '300')
+				.text(d => d.count);
+			
+			// X axis with dark theme
+			const xAxis = d3.axisBottom(x).ticks(5);
+			g.append('g')
+				.attr('class', 'x-axis')
+				.attr('transform', `translate(0,${height})`)
+				.call(xAxis)
+				.call(g => g.select('.domain').attr('stroke', '#2a3a52'))
+				.call(g => g.selectAll('.tick line').attr('stroke', '#2a3a52'))
+				.call(g => g.selectAll('.tick text')
+					.attr('fill', '#7e8ba3')
+					.attr('font-size', '0.7rem'));
+			
+			// Y axis with dark theme
+			const yAxis = d3.axisLeft(y);
+			g.append('g')
+				.attr('class', 'y-axis')
+				.call(yAxis)
+				.call(g => g.select('.domain').attr('stroke', '#2a3a52'))
+				.call(g => g.selectAll('.tick line').attr('stroke', '#2a3a52'))
+				.call(g => g.selectAll('.tick text')
+					.attr('fill', '#cbd5e8')
+					.attr('font-size', '0.65rem')
+					.attr('font-weight', '400'));
+			
+			// Title with country name
+			const countryName = countryCode === 'USA' ? 'United States' : 'India';
+			svg.append('text')
+				.attr('x', 20)
+				.attr('y', 25)
+				.attr('text-anchor', 'start')
+				.attr('font-size', '0.72rem')
+				.attr('font-weight', '500')
+				.attr('fill', '#9eb8ff')
+				.attr('letter-spacing', '0.1em')
+				.style('text-transform', 'uppercase')
+				.text(`${countryName} - Top Keywords`);
+		}
+		
+		// Render all comparison visualizations immediately
+		// (data is already loaded via window.WORLD_GEOJSON and other global variables)
+		if (world && world.features) {
+			// USA visualizations
+			renderComparisonMap('comparison-map-usa', 'USA');
+			renderComparisonBarChart('comparison-bar-usa', 'USA');
+			renderComparisonLollipopChart('comparison-lollipop-usa', 'USA');
+			
+			// India visualizations
+			renderComparisonMap('comparison-map-india', 'IND');
+			renderComparisonBarChart('comparison-bar-india', 'IND');
+			renderComparisonLollipopChart('comparison-lollipop-india', 'IND');
+		}
+	})();
+</script>
+</body>
+</html>
