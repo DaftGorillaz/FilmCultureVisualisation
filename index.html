@@ -438,7 +438,7 @@
 
 			<div class="scrolly-map">
 				<div class="scrolly-map__steps">
-					<article class="map-step" data-map-region="global" data-map-note="A global view of film genres across continents, showing diverse cultural preferences in cinema (cumulative data).">
+					<article class="map-step" data-map-region="global" data-map-note="As seen here, Action and Drama dominate globally, but regional variations highlight unique cinematic cultures.">
 						<h3>Global Overview · All Years</h3>
 						<p>The world of cinema reflects cultural diversity, with each region developing distinct genre preferences shaped by local traditions, storytelling styles, and audience tastes. This view shows cumulative data across all recorded years.</p>
 					</article>
@@ -462,9 +462,9 @@
 						<h3>South Asia</h3>
 						<p>Bollywood in India produces more films than any other industry worldwide. The region's cinema is characterized by vibrant musicals, family dramas, and epic storytelling that reflects diverse cultural traditions.</p>
 					</article>
-					<article class="map-step" data-map-region="Southeast Asia" data-map-note="Southeast Asia blends traditional storytelling with modern action cinema and horror genres.">
+					<article class="map-step" data-map-region="Southeast Asia" data-map-note="Southeast Asia blends traditional storytelling with modern drama cinema and adventure genres.">
 						<h3>Southeast Asia</h3>
-						<p>From Thailand's action films to Indonesian horror, the region's cinema showcases unique cultural perspectives. The Philippines, Malaysia, and Vietnam each contribute distinct voices to global cinema.</p>
+						<p>From Thailand's action films to Philippine adventures, the region's cinema showcases unique cultural perspectives. Indonesia, Malaysia, and Vietnam each contribute distinct voices to global cinema.</p>
 					</article>
 					<article class="map-step" data-map-region="Central Asia" data-map-note="Central Asian cinema explores historical themes and cultural identity in the post-Soviet era.">
 						<h3>Central Asia</h3>
@@ -531,7 +531,7 @@
 					<h3>India</h3>
 					<p>
 						Bollywood and regional Indian cinema create the world's largest film industry by output, known for vibrant musicals, emotional storytelling, and family-oriented narratives. 
-						Indian films emphasize Drama, Romance, and Action, often incorporating song-and-dance sequences that reflect rich cultural traditions and social values.
+						Romance in Bollywood is frequently idealised and celebratory, with music and spectacle used to advance plot and emotion over longer arcs.
 					</p>
 					<div class="comparison-charts">
 						<svg id="comparison-bar-india" viewBox="0 0 700 375" style="width: 100%; height: auto; min-height: 400px; display: block;"></svg>
@@ -1651,7 +1651,8 @@
 							
 							const countryData = countryGenreMap.get(key);
 							const currentCount = countryData.genres.get(record.genre) || 0;
-							countryData.genres.set(record.genre, currentCount + 1);
+							// Use record.count to sum actual film counts, matching comparison section
+							countryData.genres.set(record.genre, currentCount + (record.count || 0));
 						});
 					});
 					
