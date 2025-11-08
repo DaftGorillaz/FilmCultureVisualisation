@@ -829,11 +829,37 @@
 				velocity: [0, 0],
 				isDragging: false,
 				dragStartX: 0,
-				dragStartY: 0
+				dragStartY: 0,
+				autoRotating: true  // Start with auto-rotation enabled
 			};
+
+			// Auto-rotation animation
+			let autoRotationTimer;
+			function startAutoRotation() {
+				rotationState.autoRotating = true;
+				autoRotationTimer = d3.timer((elapsed) => {
+					if (!rotationState.autoRotating) {
+						autoRotationTimer.stop();
+						return;
+					}
+					// Rotate slowly (0.08 degrees per 100ms)
+					rotationState.rotation[0] = (rotationState.rotation[0] + 0.08) % 360;
+					interactiveProjection.rotate(rotationState.rotation);
+					interactiveCountries.attr('d', interactivePath);
+					interactiveGroup.select('.globe-sphere').attr('d', interactivePath);
+				}, 100);
+			}
+
+			function stopAutoRotation() {
+				rotationState.autoRotating = false;
+				if (autoRotationTimer) {
+					autoRotationTimer.stop();
+				}
+			}
 
 			const drag = d3.drag()
 				.on('start', function(event) {
+					stopAutoRotation();  // Stop auto-rotation on user interaction
 					rotationState.rotating = true;
 					rotationState.velocity = [0, 0];
 					rotationState.isDragging = false;
@@ -864,10 +890,16 @@
 				});
 
 			interactiveSvg.call(drag);
+			
+			// Start the auto-rotation
+			startAutoRotation();
 
 			const interactiveZoom = d3
 				.zoom()
 				.scaleExtent([0.8, 3])
+				.on('start', () => {
+					stopAutoRotation();  // Stop auto-rotation on zoom
+				})
 				.on('zoom', event => {
 					interactiveGroup.attr('transform', event.transform);
 				});
@@ -1710,6 +1742,9 @@
 			interactiveCountries
 				.style('cursor', 'pointer')
 				.on('click', (event, feature) => {
+					// Stop auto-rotation on country click
+					stopAutoRotation();
+					
 					// Ignore click if it was actually a drag
 					if (rotationState.isDragging) {
 						return;
